@@ -1,0 +1,6 @@
+person = {Alice}
+diabetes(person) 10 1
+BMI(person) 0.2 0.8
+age(person) 0.6 0.4
+2.302585093 diabetes(x) => BMI(x)
+2.302585093 diabetes(x) => age(x)

@@ -1,0 +1,35 @@
+  n17 A{x}{x/ person}
+  n16 or
+  n10 and
+  n0  f_1(x)
+  n9 or
+  n5 and
+  n1 or 
+  n2  diabetes(x) 
+  n3  neg diabetes(x)
+  n4 BMI(x)
+  n8 and
+  n6  neg BMI(x)
+  n7  neg diabetes(x)
+  n15 and
+  n11  neg f_1(x)
+  n14 and
+  n12  diabetes(x)
+  n13  neg BMI(x)
+  n17 -> n16;
+  n16 -> n10;
+  n16 -> n15;
+  n10 -> n0;
+  n10 -> n9;
+  n9 -> n5;
+  n9 -> n8;
+  n5 -> n1;
+  n5 -> n4;
+  n1 -> n2;
+  n1 -> n3;
+  n8 -> n6;
+  n8 -> n7;
+  n15 -> n11;
+  n15 -> n14;
+  n14 -> n12;
+  n14 -> n13;
