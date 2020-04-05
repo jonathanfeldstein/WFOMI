@@ -2,6 +2,8 @@ from parser import *
 from circuit import *
 from solvingAlg1 import *
 
+import sympy
+
 def main():
     filename = sys.argv[1]
     parser = Parser()

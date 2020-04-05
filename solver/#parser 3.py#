@@ -1,0 +1,38 @@
+import sys
+import re
+import circuit
+
+class Parser(object):
+    def parseFile(self, name):
+        print("parsing file:", name)
+        
+        nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
+        nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*\)*', re.IGNORECASE) 
+
+        linkPattern = re.compile('\s*n\d*\s*->', re.IGNORECASE)
+        
+        with open(name) as f:
+            content = f.readlines()
+            
+        connections = {}
+        nodes = {}
+        for line in content:
+            matchLink = linkPattern.match(line)
+            matchNum = nodeNumPattern.match(line)
+            if matchLink != None:
+                matchData = nodeDataPattern.match(line[matchNum.end()+3:-1])
+                node1 = matchNum.group().strip()
+                node2 = matchData.group().strip()
+                connections.update({node1 : node2})
+            else:
+                matchData = nodeDataPattern.match(line[matchNum.end():-1])
+                node = matchNum.group().strip()
+                data = matchData.group().strip()
+                nodes.update({node : data})
+
+        return nodes, connections
+            
+filename = sys.argv[1]
+
+parser = Parser()
+nodes, connections = parser.parseFile(filename)

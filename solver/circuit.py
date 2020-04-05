@@ -1,3 +1,5 @@
+from sympy import integration, summation
+
 class Node(object):
     def __init__(self, left=None, right=None):
         self.left = left
@@ -8,7 +10,9 @@ class Node(object):
 
 class ForAllNode(Node):
      def compute(self):
-        print("for all")
+         f = self.left.compute() # assume that a univsersal can only have one child
+         x = Symbol('x')
+         return integrate(f, (x, 0, 10))
 
 class ExistsNode(Node):
      def compute(self):
