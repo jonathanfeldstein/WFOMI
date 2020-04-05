@@ -1,6 +1,5 @@
-import sys
-import re
 from circuit import *
+import re
 
 class Parser(object):
     def parseFile(self, name):

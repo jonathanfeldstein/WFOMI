@@ -1,8 +1,7 @@
 from parser import *
 from circuit import *
-from solvingAlg1 import *
 
-import sympy
+import sys
 
 def main():
     filename = sys.argv[1]
@@ -16,7 +15,7 @@ def main():
         elif nodes[node1].right == None:
             nodes[node1].right = nodes[node2]
             
-    solvingAlg1(nodes[root])
+    print(nodes[root].compute())
 
 if __name__ == "__main__":
     main()
