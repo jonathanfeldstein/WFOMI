@@ -2,7 +2,7 @@ from circuit import *
 import re
 
 class Parser(object):
-    def parseFile(self, name):
+    def parseCircuit(self, name):
         print("parsing file:", name)
         
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
@@ -29,8 +29,24 @@ class Parser(object):
                 node = matchNum.group().strip()
                 data = matchData.group().strip()
 
-                newNode = CreateNewNode(data)
+                if data == 'A':
+                    var = line[line.find("{")+1:line.find("}")].split(",")
+                    objects = line[line.find("}")+2:-2].split(",")                        
+                else:
+                    var = None
+                    objects = None
+                    
+                newNode = CreateNewNode(data, var, objects)
                 nodes.update({node : newNode})
 
         root = nodeNumPattern.match(content[0]).group().strip()
-        return root, nodes, connections
+        nodes = self.connectNodes(nodes, connections)
+        return root, nodes
+
+    def connectNodes(self, nodes, connections):
+        for node1, node2 in connections:
+            if nodes[node1].left == None:
+                nodes[node1].left = nodes[node2]
+            elif nodes[node1].right == None:
+                nodes[node1].right = nodes[node2]
+        return nodes

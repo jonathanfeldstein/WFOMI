@@ -1,0 +1,10 @@
+f_1(x): 10 1
+diabetes(x): 
+BMI(x): BMI(x), BMI(x)
+
+
+Add(Mul(BMI(x), Pow(10, -1)), -1), Add(8, -Mul(BMI(x), Pow(10, -1)))
+
+SETSIZE changes depending on the num of ppl u quantify over
+
+one w function for continuous predicate

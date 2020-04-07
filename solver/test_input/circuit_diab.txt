@@ -1,4 +1,4 @@
-  n17 A{x}{x/ person}
+  n17 A{x}{person}
   n16 or
   n10 and
   n0  f_1(x)
