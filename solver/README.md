@@ -1,0 +1,1 @@
+run with python3 main.py test_input/circuit_diab.txt test_input/weights.txt 
