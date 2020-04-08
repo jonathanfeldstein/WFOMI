@@ -1,15 +1,23 @@
 from parser import *
 from circuit import *
-
+import time
 import sys
 
 def main():
-    filename = sys.argv[1]
+    circuitFile = sys.argv[1]
+    weightFile = sys.argv[2]
+    
     parser = Parser()
-    root, nodes = parser.parseCircuit(filename)
+    weights, domains = parser.parseWeights(weightFile)
+    root, nodes = parser.parseCircuit(circuitFile, weights)
 
-            
-    print(nodes[root].compute())
+    start = time.time()
+    result = nodes[root].compute()
+    end = time.time()
+    
+    print(result)
+    print("time to compute:", end - start)
+
 
 if __name__ == "__main__":
     main()

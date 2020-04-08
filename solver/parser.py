@@ -2,7 +2,7 @@ from circuit import *
 import re
 
 class Parser(object):
-    def parseCircuit(self, name):
+    def parseCircuit(self, name, weights):
         print("parsing file:", name)
         
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
@@ -29,20 +29,46 @@ class Parser(object):
                 node = matchNum.group().strip()
                 data = matchData.group().strip()
 
-                if data == 'A':
+                if data == 'A' or data == 'E':
                     var = line[line.find("{")+1:line.find("}")].split(",")
-                    objects = line[line.find("}")+2:-2].split(",")                        
+                    objects = line[line.find("}")+2:-2].split(",")
                 else:
                     var = None
                     objects = None
                     
-                newNode = CreateNewNode(data, var, objects)
+                newNode = CreateNewNode(data, var, objects, weights)
                 nodes.update({node : newNode})
 
         root = nodeNumPattern.match(content[0]).group().strip()
         nodes = self.connectNodes(nodes, connections)
         return root, nodes
 
+    def parseWeights(self, name):
+        print("parsing file:", name)
+
+        with open(name) as f:
+            content = f.readlines()
+
+
+        weights = {}
+        domains = {}
+        for line in content:
+            function = domain = ""
+            weight = objects = []
+            
+            if line.find(":") != -1:
+                function = line[0:line.find(":")]
+                weight = line[line.find("[")+1:line.find("]")].split(",")
+                weights.update({function : float(weight[0])})
+                weights.update({"neg " + function : float(weight[1])})
+                
+            if line.find("=") != -1:
+                domain = line[0:line.find("=")-1]
+                objects = line[line.find("{")+1:line.find("}")].split(",")
+                domains.update({domain : objects})
+            
+        return weights, domains
+        
     def connectNodes(self, nodes, connections):
         for node1, node2 in connections:
             if nodes[node1].left == None:
