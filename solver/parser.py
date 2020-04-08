@@ -1,4 +1,5 @@
 from circuit import *
+from sympy.parsing.sympy_parser import parse_expr
 import re
 
 class Parser(object):
@@ -49,26 +50,35 @@ class Parser(object):
         with open(name) as f:
             content = f.readlines()
 
-
         weights = {}
         domains = {}
         for line in content:
             function = domain = ""
             weight = objects = []
-            
-            if line.find(":") != -1:
-                function = line[0:line.find(":")]
-                weight = line[line.find("[")+1:line.find("]")].split(",")
-                weights.update({function : float(weight[0])})
-                weights.update({"neg " + function : float(weight[1])})
                 
             if line.find("=") != -1:
                 domain = line[0:line.find("=")-1]
                 objects = line[line.find("{")+1:line.find("}")].split(",")
                 domains.update({domain : objects})
-            
+            elif line.find(":") != -1:
+                function = line[0:line.find(":")]
+                weight = line[line.find("[")+1:line.find("]")].split(",")
+                weights.update({function : float(weight[0])})
+                weights.update({"neg " + function : float(weight[1])}) 
+            elif line.find("fun") != -1:
+                function = line[0:line.find("fun")]
+               
+                if line.find("bounds") != -1:
+                    weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
+                    bounds = line[line.find("[")+1:line.find("]")].split(",")
+                    weights.update({function : (weight, bounds[0:2])})
+                    weights.update({"neg " + function : (weight, bounds[2:4])})
+                else:
+                    weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
+                    # weight = line[line.find("fun")+4:-1]
+                    weights.update({function : weight})
         return weights, domains
-        
+
     def connectNodes(self, nodes, connections):
         for node1, node2 in connections:
             if nodes[node1].left == None:

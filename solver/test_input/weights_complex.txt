@@ -1,0 +1,6 @@
+person = {Alice}
+f_1(x): [10, 1]
+BMI(x)fun sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi)) bounds[35, 45, 10, 35]
+diabetes(x)fun (sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi))/10) - 1
+neg diabetes(x)fun 8 - (sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi))/10) 
+

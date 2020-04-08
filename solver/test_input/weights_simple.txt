@@ -1,4 +1,4 @@
 person = {Alice}
 f_1(x): [10, 1]
-diabetes(x): [10, 1]
 BMI(x): [0.2, 0.8]
+diabetes(x): [10, 1]

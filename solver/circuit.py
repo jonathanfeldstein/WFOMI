@@ -46,7 +46,10 @@ class LeafNode(Node):
         self.weight = weights[data]
         
     def compute(self, setsize=None):
-        return self.weight
+        if type(self.weight) == tuple:
+            return integrate(self.weight[0], ('x', self.weight[1][0], self.weight[1][1]))
+        else:
+            return self.weight
 
 def CreateNewNode(data=None, var=None, objects=None, weights=None):
     if data == 'and':
@@ -59,13 +62,17 @@ def CreateNewNode(data=None, var=None, objects=None, weights=None):
         return ExistsNode(var, objects)
     else:
         return LeafNode(data, weights)
+    
 
-
+#HARDCODED for tests
 # x = Symbol('x')
-# bmi = Normal(x, 27, 36)
-# diab = 10# Add(Mul(Symbol('bmi(x)'), Pow(10, -1)), -1)
-# negDiab = 1# Add(8, Mul(-Symbol('bmi(x)'), Pow(10, -1)))
-# wBmi = 0.2# integrate(density(bmi)(x), (x, 35, 45))
-# notWbmi = 0.8# integrate(density(bmi)(x), (x, 10, 35))
+# # bmi = Normal(x, 27, 36)
+# bmi = sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi))
+# diab = Add(Mul(bmi, Pow(10, -1)), -1)
+# negDiab = Add(8, Mul(-bmi, Pow(10, -1)))
+# # wBmi = integrate(density(bmi)(x), (x, 35, 45))
+# # notWbmi = integrate(density(bmi)(x), (x, 10, 35))
+# wBmi = integrate(sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi)), ('x', 35, 45))
+# notWbmi = integrate(sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi)), ('x', 10, 35))
 
 # w = {'f_1(x)' : 10, 'neg f_1(x)' : 1, 'diabetes(x)' : diab, 'neg diabetes(x)' : negDiab, 'BMI(x)' : wBmi, 'neg BMI(x)' : notWbmi}
