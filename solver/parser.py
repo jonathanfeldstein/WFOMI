@@ -3,7 +3,7 @@ from sympy.parsing.sympy_parser import parse_expr
 import re
 
 class Parser(object):
-    def parseCircuit(self, name, weights, domains):
+    def parseCircuit(self, name, weights, domains, algoType):
         print("parsing file:", name)
         
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
@@ -46,7 +46,7 @@ class Parser(object):
                     var = None
                     objects = None
 
-                newNode = CreateNewNode(data, var, objects, weights)
+                newNode = CreateNewNode(data, var, objects, weights, algoType)
                 nodes.update({node : newNode})
 
         root = nodeNumPattern.match(content[0]).group().strip()

@@ -7,15 +7,16 @@ def main():
     partitionFile = sys.argv[1]
     queryFile = sys.argv[2]
     weightFile = sys.argv[3]
+    algoType = int(sys.argv[4])
     
     parser = Parser()
     weights, domains = parser.parseWeights(weightFile)
-    partitionRoot, partitionNodes = parser.parseCircuit(partitionFile, weights, domains)
-    queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains)
+    partitionRoot, partitionNodes = parser.parseCircuit(partitionFile, weights, domains, algoType)
+    queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains, algoType)
 
     start = time.time()
-    partitionF = partitionNodes[partitionRoot].compute()
-    queryF = queryNodes[queryRoot].compute()
+    partitionF = partitionNodes[partitionRoot].compute(algoType)
+    queryF = queryNodes[queryRoot].compute(algoType)
     queryProb = queryF / partitionF
     end = time.time()
     

@@ -1,6 +1,8 @@
 from sympy import *
 from sympy.stats import Normal, density 
 
+hashed_inegrals = {}
+
 class Node(object):
     def __init__(self, left=None, right=None):
         self.left = left
@@ -40,18 +42,28 @@ class AndNode(Node):
         return Mul(self.left.compute(), self.right.compute())
 
 class LeafNode(Node):
-    def __init__(self, data=None, weights=None):
+    def __init__(self, data=None, weights=None, algoType=None):
         super(LeafNode, self).__init__()
         self.data = data
         self.weight = weights[data]
-        
+        self.algoType = algoType
+
     def compute(self, setsize=None):
         if type(self.weight) == tuple:
-            return integrate(self.weight[0], ('x', self.weight[1][0], self.weight[1][1]))
+            if self.algoType == 0:
+                return integrate(self.weight[0], ('x', self.weight[1][0], self.weight[1][1]))
+            else:
+                integral = (self.weight[0], self.weight[1][0], self.weight[1][1])
+                if integral in hashed_inegrals:
+                    return hashed_inegrals[integral]
+                else:
+                    computed_integral = integrate(self.weight[0], ('x', self.weight[1][0], self.weight[1][1]))
+                    hashed_inegrals.update({integral : computed_integral})
+                    return computed_integral
         else:
             return self.weight
 
-def CreateNewNode(data=None, var=None, objects=None, weights=None):
+def CreateNewNode(data=None, var=None, objects=None, weights=None, algoType=None):
     if data == 'and':
         return AndNode()
     elif data == 'or':
@@ -61,7 +73,7 @@ def CreateNewNode(data=None, var=None, objects=None, weights=None):
     elif data == 'E':
         return ExistsNode(var, objects)
     else:
-        return LeafNode(data, weights)
+        return LeafNode(data, weights, algoType)
     
 
 #HARDCODED for tests
