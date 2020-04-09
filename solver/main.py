@@ -9,7 +9,7 @@ def main():
     
     parser = Parser()
     weights, domains = parser.parseWeights(weightFile)
-    root, nodes = parser.parseCircuit(circuitFile, weights)
+    root, nodes = parser.parseCircuit(circuitFile, weights, domains)
 
     start = time.time()
     result = nodes[root].compute()

@@ -1,0 +1,55 @@
+  n27 and
+  n0  diabetes(Alice)
+  n26 and
+  n18 A{x}{person/Alice}
+  n17 or
+  n11 and
+  n1  f_1(x)
+  n10 or
+  n6 and
+  n5 BMI(x)
+  n4 or
+  n3 diabetes(x)
+  n2 neg diabetes(x)
+  n9 and
+  n7  neg BMI(x)
+  n8  neg diabetes(x)
+  n16 and
+  n12  neg f_1(x)
+  n15 and
+  n13  diabetes(x)
+  n14  neg BMI(x)
+  n25 or
+  n21 and
+  n19  f_1(Alice)
+  n20  BMI(Alice)
+  n24 and
+  n22  neg f_1(Alice)
+  n23  neg BMI(Alice)
+  n27 -> n0;
+  n27 -> n26;
+  n26 -> n18;
+  n26 -> n25;
+  n18 -> n17;
+  n17 -> n11;
+  n17 -> n16;
+  n11 -> n1;
+  n11 -> n10;
+  n10 -> n6;
+  n10 -> n9; 
+  n6 -> n4;
+  n6 -> n5; 
+  n4 -> n3;
+  n4 -> n2; 
+  n9 -> n7;
+  n9 -> n8;
+  n16 -> n12;
+  n16 -> n15;
+  n15 -> n13;
+  n15 -> n14;
+  n25 -> n21;
+  n25 -> n24;
+  n21 -> n19;
+  n21 -> n20;
+  n24 -> n22;
+  n24 -> n23;

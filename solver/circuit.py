@@ -16,7 +16,7 @@ class ForAllNode(Node):
         self.objects = objects
         
     def compute(self, setsize=None):
-        return Pow(self.left.compute(), len(self.objects)).evalf()
+        return Pow(self.left.compute(), len(self.objects[self.var])).evalf()
     
 class ExistsNode(Node):
     def __init__(self, var=None, objects=None):
@@ -27,7 +27,7 @@ class ExistsNode(Node):
     def compute(self, setsize=None):
         if setsize == None:
             #TODO: correction needed for the setsize - not len(objects) but use second input
-            setsize = len(self.objects)
+            setsize = len(self.objects[self.var])
         d = Symbol('d')
         return Sum(Mul(binomial(setsize, d), self.left.compute(setsize=d)), (d, 1, setsize)).evalf()
 

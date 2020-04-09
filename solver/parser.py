@@ -3,7 +3,7 @@ from sympy.parsing.sympy_parser import parse_expr
 import re
 
 class Parser(object):
-    def parseCircuit(self, name, weights):
+    def parseCircuit(self, name, weights, domains):
         print("parsing file:", name)
         
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
@@ -31,12 +31,21 @@ class Parser(object):
                 data = matchData.group().strip()
 
                 if data == 'A' or data == 'E':
-                    var = line[line.find("{")+1:line.find("}")].split(",")
-                    objects = line[line.find("}")+2:-2].split(",")
+                    varSet = line[line.find("{")+1:line.find("}")].split(",")
+                    without = []
+                    if len(line[line.find("}")+2:-2].split("/")) > 1:
+                        domainSet, without = line[line.find("}")+2:-2].split("/")
+                        domainSet, without = domainSet.split(","), without.split(",")
+                    else:
+                        domainSet = line[line.find("}")+2:-2].split(",")
+                    objects = {}
+                    for dom, var in zip(domainSet, varSet):
+                        members = [x for x in domains[dom] if x not in without]
+                        objects.update({var : members})
                 else:
                     var = None
                     objects = None
-                    
+
                 newNode = CreateNewNode(data, var, objects, weights)
                 nodes.update({node : newNode})
 
@@ -64,19 +73,28 @@ class Parser(object):
                 function = line[0:line.find(":")]
                 weight = line[line.find("[")+1:line.find("]")].split(",")
                 weights.update({function : float(weight[0])})
-                weights.update({"neg " + function : float(weight[1])}) 
+                weights.update({"neg " + function : float(weight[1])})
+                for item in domains.items():
+                    for elem in item[1]:
+                        weights.update({function.replace('x', elem) : float(weight[0])})
+                        weights.update({"neg " + function.replace('x', elem) : float(weight[1])})
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
-               
+                weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
-                    weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                     bounds = line[line.find("[")+1:line.find("]")].split(",")
                     weights.update({function : (weight, bounds[0:2])})
                     weights.update({"neg " + function : (weight, bounds[2:4])})
+                    for item in domains.items():
+                        for elem in item[1]:
+                            weights.update({function.replace('x', elem) : (weight, bounds[0:2])})
+                            weights.update({"neg " + function.replace('x', elem) : (weight, bounds[2:4])})
                 else:
-                    weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                     # weight = line[line.find("fun")+4:-1]
                     weights.update({function : weight})
+                    for item in domains.items():
+                        for elem in item[1]:
+                            weights.update({function.replace('x', elem) : weight})
         return weights, domains
 
     def connectNodes(self, nodes, connections):
