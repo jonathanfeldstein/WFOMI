@@ -1,5 +1,5 @@
 from sympy import *
-from sympy.stats import Normal, density 
+from term import *
 
 hashed_inegrals = {}
 
@@ -10,7 +10,7 @@ class Node(object):
 
     def compute(self):
         raise NotImplementedError("Subclass must implement abstract method")
-
+    
 class ForAllNode(Node):
     def __init__(self, var=None, objects=None):
         super(ForAllNode, self).__init__()
@@ -18,7 +18,9 @@ class ForAllNode(Node):
         self.objects = objects
         
     def compute(self, setsize=None):
-        return Pow(self.left.compute(), len(self.objects[self.var])).evalf()
+        term = self.left.compute()
+        result = term.integrate()
+        return Term(Pow(result, len(self.objects[self.var])), ())
     
 class ExistsNode(Node):
     def __init__(self, var=None, objects=None):
@@ -28,19 +30,28 @@ class ExistsNode(Node):
         
     def compute(self, setsize=None):
         if setsize == None:
-            #TODO: correction needed for the setsize - not len(objects) but use second input
             setsize = len(self.objects[self.var])
         d = Symbol('d')
-        return Sum(Mul(binomial(setsize, d), self.left.compute(setsize=d)), (d, 1, setsize)).evalf()
+        return Sum(Mul(binomial(setsize, d), self.left.compute(setsize=d)[0]), (d, 1, setsize))
 
 class OrNode(Node):
     def compute(self, setsize=None):
-        return Add(self.left.compute(), self.right.compute())
-
+        leftTerm = self.left.compute()
+        rightTerm = self.right.compute()
+        # print("ADD", leftTerm, rightTerm)
+        result = leftTerm + rightTerm
+        # print("ADD result", result)
+        return result
+    
 class AndNode(Node):
     def compute(self, setsize=None):
-        return Mul(self.left.compute(), self.right.compute())
-
+        leftTerm = self.left.compute()
+        rightTerm = self.right.compute()
+        # print("MUL", leftTerm, rightTerm)
+        result = leftTerm * rightTerm
+        # print("MUL result", result)
+        return result
+        
 class LeafNode(Node):
     def __init__(self, data=None, weights=None, algoType=None):
         super(LeafNode, self).__init__()
@@ -50,18 +61,9 @@ class LeafNode(Node):
 
     def compute(self, setsize=None):
         if type(self.weight) == tuple:
-            if self.algoType == 0:
-                return integrate(self.weight[0], ('x', self.weight[1][0], self.weight[1][1]))
-            else:
-                integral = (self.weight[0], self.weight[1][0], self.weight[1][1])
-                if integral in hashed_inegrals:
-                    return hashed_inegrals[integral]
-                else:
-                    computed_integral = integrate(self.weight[0], ('x', self.weight[1][0], self.weight[1][1]))
-                    hashed_inegrals.update({integral : computed_integral})
-                    return computed_integral
+            return Term(self.weight[0], (int(self.weight[1][0]), int(self.weight[1][1])))
         else:
-            return self.weight
+            return Term(self.weight, ())
 
 def CreateNewNode(data=None, var=None, objects=None, weights=None, algoType=None):
     if data == 'and':
@@ -75,16 +77,3 @@ def CreateNewNode(data=None, var=None, objects=None, weights=None, algoType=None
     else:
         return LeafNode(data, weights, algoType)
     
-
-#HARDCODED for tests
-# x = Symbol('x')
-# # bmi = Normal(x, 27, 36)
-# bmi = sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi))
-# diab = Add(Mul(bmi, Pow(10, -1)), -1)
-# negDiab = Add(8, Mul(-bmi, Pow(10, -1)))
-# # wBmi = integrate(density(bmi)(x), (x, 35, 45))
-# # notWbmi = integrate(density(bmi)(x), (x, 10, 35))
-# wBmi = integrate(sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi)), ('x', 35, 45))
-# notWbmi = integrate(sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi)), ('x', 10, 35))
-
-# w = {'f_1(x)' : 10, 'neg f_1(x)' : 1, 'diabetes(x)' : diab, 'neg diabetes(x)' : negDiab, 'BMI(x)' : wBmi, 'neg BMI(x)' : notWbmi}

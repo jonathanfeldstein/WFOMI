@@ -15,8 +15,8 @@ def main():
     queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains, algoType)
 
     start = time.time()
-    partitionF = partitionNodes[partitionRoot].compute(algoType)
-    queryF = queryNodes[queryRoot].compute(algoType)
+    partitionF = partitionNodes[partitionRoot].compute(algoType).integrate()
+    queryF = queryNodes[queryRoot].compute(algoType).integrate()
     queryProb = queryF / partitionF
     end = time.time()
     

@@ -1,0 +1,39 @@
+  n19 and
+  n0  old(X) \or neg old(X), X \in person
+  n18 A{x}{x/ person}
+  n17 or
+  n11 and
+  n1  f_1(x)
+  n10 or
+  n4 and
+  n2  smokes(x)
+  n3  diabetes(x)
+  n9 and
+  n5  diabetes(x) \or neg diabetes(x)
+  n8 and
+  n6  neg smokes(x)
+  n7 top
+  n16 and
+  n12  neg f_1(x)
+  n15 and
+  n13  smokes(x)
+  n14  neg diabetes(x)
+  n19 -> n0;
+  n19 -> n18;
+  n18 -> n17;
+  n17 -> n11;
+  n17 -> n16;
+  n11 -> n1;
+  n11 -> n10;
+  n10 -> n4;
+  n10 -> n9;
+  n4 -> n2;
+  n4 -> n3;
+  n9 -> n5;
+  n9 -> n8;
+  n8 -> n6;
+  n8 -> n7;
+  n16 -> n12;
+  n16 -> n15;
+  n15 -> n13;
+  n15 -> n14;

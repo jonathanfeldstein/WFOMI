@@ -1,0 +1,10 @@
+person = {Guy, Nima, Wannes, Jesse, Luc}
+diabetes(person) 0.8 0.2
+old(person) 0.1 0.9
+smokes(person) 0.5 0.5
+2 smokes(x) => diabetes(x)
+
+
+Z = exp(9.547823996540753) = 14014.16659396058
+Z(query) = exp(7.245238903546708) = 1401.416659396059
+P(old(Guy)) = exp(-2.302585092994045) = 0.10000000000000006

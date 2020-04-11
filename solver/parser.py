@@ -82,13 +82,11 @@ class Parser(object):
                 function = line[0:line.find("fun")]
                 weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
-                    bounds = line[line.find("[")+1:line.find("]")].split(",")
-                    weights.update({function : (weight, bounds[0:2])})
-                    weights.update({"neg " + function : (weight, bounds[2:4])})
+                    bounds = tuple(line[line.find("[")+1:line.find("]")].split(","))
+                    weights.update({function : (weight, bounds)})
                     for item in domains.items():
                         for elem in item[1]:
-                            weights.update({function.replace('x', elem) : (weight, bounds[0:2])})
-                            weights.update({"neg " + function.replace('x', elem) : (weight, bounds[2:4])})
+                            weights.update({function.replace('x', elem) : (weight, bounds)})
                 else:
                     # weight = line[line.find("fun")+4:-1]
                     weights.update({function : weight})
