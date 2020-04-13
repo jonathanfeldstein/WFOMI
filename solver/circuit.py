@@ -31,8 +31,13 @@ class ExistsNode(Node):
     def compute(self, setsize=None):
         if setsize == None:
             setsize = len(self.objects[self.var])
-        d = Symbol('d')
-        return Sum(Mul(binomial(setsize, d), self.left.compute(setsize=d)[0]), (d, 1, setsize))
+
+        result = Term()
+        for i in range(1, setsize+1):
+            coeff = Term(binomial(setsize, i))
+            compute = self.left.compute(setsize=i)
+            result += coeff * compute 
+        return result
 
 class OrNode(Node):
     def compute(self, setsize=None):

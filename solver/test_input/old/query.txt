@@ -1,8 +1,10 @@
   n21 and
-  n0  old(X) \or neg old(X), X \neq Guy, X \in person
+  n0  or 
+  n22 old(x), {x}{person/Guy}
+  n23 neg old(x), {x}{person/Guy}
   n20 and
   n1  old(Guy)
-  n19 A{x}{x/ person}
+  n19 A{x}{person}
   n18 or
   n12 and
   n2  f_1(x)
@@ -11,16 +13,18 @@
   n3  smokes(x)
   n4  diabetes(x)
   n10 and
-  n6  diabetes(x) \or neg diabetes(x)
-  n9 and
-  n7  neg smokes(x)
-  n8 top
+  n6 or 
+  n9 neg smokes(x)
+  n7 diabetes(x) 
+  n8 neg diabetes(x)
   n17 and
   n13  neg f_1(x)
   n16 and
   n14  smokes(x)
   n15  neg diabetes(x)
   n21 -> n0;
+  n0 -> n22;
+  n0 -> n23;
   n21 -> n20;
   n20 -> n1;
   n20 -> n19;
@@ -34,9 +38,9 @@
   n5 -> n3;
   n5 -> n4;
   n10 -> n6;
+  n6 -> n7;
+  n6 -> n8;
   n10 -> n9;
-  n9 -> n7;
-  n9 -> n8;
   n17 -> n13;
   n17 -> n16;
   n16 -> n14;

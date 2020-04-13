@@ -14,16 +14,16 @@ def main():
     partitionRoot, partitionNodes = parser.parseCircuit(partitionFile, weights, domains, algoType)
     queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains, algoType)
 
-    start = time.time()
-    partitionF = partitionNodes[partitionRoot].compute(algoType).integrate()
-    queryF = queryNodes[queryRoot].compute(algoType).integrate()
-    queryProb = queryF / partitionF
-    end = time.time()
+    startTime = time.time()
+    partitionFunc = partitionNodes[partitionRoot].compute(algoType).integrate()
+    queryFunc = queryNodes[queryRoot].compute(algoType).integrate()
+    queryProb = queryFunc / partitionFunc
+    endTime = time.time()
     
-    print("partition function =", partitionF)
-    print("the query =", queryF)
+    print("partition function =", partitionFunc)
+    print("the query =", queryFunc)
     print("P(query) =", queryProb)
-    print("time to compute:", end - start)
+    print("time to compute:", endTime - startTime)
 
 
 if __name__ == "__main__":

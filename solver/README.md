@@ -5,5 +5,5 @@ and circuit 2 represents the query circuit
 algo_type = 0 or 1, 0 -> slow algorithm, 1 -> fast, hashing algorithm
 
 eg.
-python3 main.py test_input/circuit_diab.txt test_input/circuit_diab_query.txt test_input/weights_simple.txt 0
+python3 main.py test_input/diabetes/theory.txt test_input/diabetes/query.txt test_input/diabetes/weights_simple.txt 0
 

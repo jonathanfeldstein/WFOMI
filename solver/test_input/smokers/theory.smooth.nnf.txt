@@ -1,89 +1,47 @@
-  n44 and
-  n0  friends(Luc,Luc) \or neg friends(Luc,Luc)
-  n43 and
-  n1  friends(X,X) \or neg friends(X,X), X \neq Luc, X \in person
-  n42 and
-  n2  friends(X,Luc) \or neg friends(X,Luc), X \neq Luc, X \in person
-  n41 and
-  n3  smokes(Luc)
-  n40 and
-  n4  f_1(X,Luc), X \in person
-  n39 E{person_{1}^{ \top }}{ person_{1}^{ \top }person}
-  n38 and
-  n5  friends(X,Y) \or neg friends(X,Y), X \neq Luc, Y \neq Luc, Y \neq X, X \in person_{1}^{ \bot }, Y \in person_{1}^{ \bot }
-  n37 and
-  n6  friends(X,Y) \or neg friends(X,Y), X \neq Luc, Y \neq Luc, Y \neq X, X \in person, Y \in person_{1}^{ \top }
-  n36 and
-  n7  friends(Luc,X) \or neg friends(Luc,X), X \neq Luc, X \in person_{1}^{ \top }
-  n35 and
-  n8  smokes(X), X \neq Luc, X \in person_{1}^{ \top }
-  n34 and
-  n9  f_1(X,Y), X \neq Luc, Y \neq Luc, X \in person, Y \in person_{1}^{ \top }
-  n33 and
-  n10  f_1(Luc,X), X \neq Luc, X \in person_{1}^{ \top }
-  n32 and
-  n11  neg smokes(X), X \neq Luc, X \in person_{1}^{ \bot }
-  n31 and
-  n12  f_1(X,Y), X \neq Luc, Y \neq Luc, X \in person_{1}^{ \bot }, Y \in person_{1}^{ \bot }
-  n30 and
-  n21 A{x}{x/ person_{1}^{ \top } and x \neq Luc}
-  n20 A{x'}{x'/ person_{1}^{ \bot } and x' \neq Luc}
-  n19 or
-  n15 and
-  n13  f_1(x,x')
-  n14  neg friends(x,x')
+  n23 and
+  n0  friends(X,X) \or neg friends(X,X), X \in person
+  n22 E{person_{1}^{ \top }}{ person_{1}^{ \top }person}
+  n21 and
+  n1  friends(X,Y) \or neg friends(X,Y), X \neq Y, X \in person_{1}^{ \bot }, Y \in person_{1}^{ \bot }
+  n20 and
+  n2  friends(X,Y) \or neg friends(X,Y), X \neq Y, X \in person, Y \in person_{1}^{ \top }
+  n19 and
+  n3  smokes(X), X \in person_{1}^{ \top }
   n18 and
-  n16  neg f_1(x,x')
-  n17  friends(x,x')
-  n29 A{x}{x/ person_{1}^{ \bot } and x \neq Luc}
-  n28 or
-  n24 and
-  n22  friends(Luc,x)
-  n23  neg f_1(Luc,x)
-  n27 and
-  n25  neg friends(Luc,x)
-  n26  f_1(Luc,x)
-  n44 -> n0;
-  n44 -> n43;
-  n43 -> n1;
-  n43 -> n42;
-  n42 -> n2;
-  n42 -> n41;
-  n41 -> n3;
-  n41 -> n40;
-  n40 -> n4;
-  n40 -> n39;
-  n39 -> n38;
-  n38 -> n5;
-  n38 -> n37;
-  n37 -> n6;
-  n37 -> n36;
-  n36 -> n7;
-  n36 -> n35;
-  n35 -> n8;
-  n35 -> n34;
-  n34 -> n9;
-  n34 -> n33;
-  n33 -> n10;
-  n33 -> n32;
-  n32 -> n11;
-  n32 -> n31;
-  n31 -> n12;
-  n31 -> n30;
-  n30 -> n21;
-  n30 -> n29;
+  n4  f_1(X,Y), X \in person, Y \in person_{1}^{ \top }
+  n17 and
+  n5  neg smokes(X), X \in person_{1}^{ \bot }
+  n16 and
+  n6  f_1(X,Y), X \in person_{1}^{ \bot }, Y \in person_{1}^{ \bot }
+  n15 A{x}{x/ person_{1}^{ \top }}
+  n14 A{x'}{x'/ person_{1}^{ \bot }}
+  n13 or
+  n9 and
+  n7  f_1(x,x')
+  n8  neg friends(x,x')
+  n12 and
+  n10  neg f_1(x,x')
+  n11  friends(x,x')
+  n23 -> n0;
+  n23 -> n22;
+  n22 -> n21;
+  n21 -> n1;
   n21 -> n20;
+  n20 -> n2;
   n20 -> n19;
-  n19 -> n15;
+  n19 -> n3;
   n19 -> n18;
-  n15 -> n13;
-  n15 -> n14;
-  n18 -> n16;
+  n18 -> n4;
   n18 -> n17;
-  n29 -> n28;
-  n28 -> n24;
-  n28 -> n27;
-  n24 -> n22;
-  n24 -> n23;
-  n27 -> n25;
-  n27 -> n26;
+  n17 -> n5;
+  n17 -> n16;
+  n16 -> n6;
+  n16 -> n15;
+  n15 -> n14;
+  n14 -> n13;
+  n13 -> n9;
+  n13 -> n12;
+  n9 -> n7;
+  n9 -> n8;
+  n12 -> n10;
+  n12 -> n11;

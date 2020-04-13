@@ -7,7 +7,7 @@ class Parser(object):
         print("parsing file:", name)
         
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
-        nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*\)*', re.IGNORECASE) 
+        nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE) 
 
         linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
         
@@ -29,7 +29,6 @@ class Parser(object):
                 matchData = nodeDataPattern.match(line[matchNum.end():-1])
                 node = matchNum.group().strip()
                 data = matchData.group().strip()
-
                 if data == 'A' or data == 'E':
                     varSet = line[line.find("{")+1:line.find("}")].split(",")
                     without = []

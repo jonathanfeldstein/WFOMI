@@ -1,0 +1,9 @@
+Z = exp(68.63908810719217) = 6.450259808376127E29
+Z(query) = exp(67.94594092663222) = 3.225129904188057E29
+P(smokes(Guy)) = exp(-0.6931471805599472) = 0.49999999999999906
+Inference took 127 ms
+
+person = {Guy, Nima, Wannes, Jesse, Luc}
+friends(person,person)
+smokes(person)
+2 friends(x,y) ^ smokes(x) => smokes(y)

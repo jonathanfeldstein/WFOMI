@@ -2,14 +2,23 @@ from sympy import *
 
 class Term(object):
     def __init__(self, data=None, bounds=()):
-        self.data = [data]
-        self.bounds = [bounds]
+        if type(data) == list:
+            self.data = data
+        else:
+            self.data = [data]
+        if data == None:
+            self.data = []
+        if type(bounds) == list:
+            self.bounds = bounds
+        else:
+            self.bounds = [bounds]
 
     def __add__(self, other):
+        result = Term(self.data, self.bounds)
         for data, bound in zip(other.data, other.bounds):
-            self.data.append(data)
-            self.bounds.append(bound)
-        return self
+            result.data.append(data)
+            result.bounds.append(bound)
+        return result
     
     def __mul__(self, other):
         newData = []
@@ -24,9 +33,8 @@ class Term(object):
                         newBounds.append(rhsBound)
                 else:
                     newBounds.append(lhsBound)
-        self.data = newData
-        self.bounds = newBounds
-        return self
+        result = Term(newData, newBounds)
+        return result
     
     def __str__(self):
         return "data: " + str(self.data) + " bounds: " + str(self.bounds)
