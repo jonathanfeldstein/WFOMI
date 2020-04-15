@@ -47,9 +47,6 @@ class Parser(object):
 
                     objects = {}
                     for dom, var in zip(domainSet, varSet):
-                        # domainSize = len(domains[dom]) - len(without)
-                        # if domainSize > maxDomainSize:
-                        #     maxDomainSize = domainSize
                         objects.update({var : (domains[dom], domainType, without)})
 
                 elif data == 'C':
@@ -85,10 +82,6 @@ class Parser(object):
                             withoutSet.append("")
 
                     for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
-                        # domainSize = len(domains[dom.strip()]) - len(without)
-                        # print(node, domainSize)
-                        # if domainSize > maxDomainSize:
-                        #     maxDomainSize = domainSize
                         objects.update({node + var : (domains[dom.strip()], domType, without)})
 
                     line = line[line.find("}")+2:]
@@ -168,7 +161,6 @@ class Parser(object):
                         for elem in item[1]:
                             weights.update({function.replace('x', elem) : (weight, bounds)})
                 else:
-                    # weight = line[line.find("fun")+4:-1]
                     weights.update({function : weight})
                     for item in domains.items():
                         for elem in item[1]:

@@ -21,11 +21,9 @@ class ForAllNode(Node):
     def compute(self, setsize=[], removed=[]):
         domain, domType, without = self.objects[self.var]
         domain = list(set(domain) - set(without))
+        
         if setsize == []:
             setsize = [len(domain), len(domain)]
-
-        # print("ALL", domain, setsize, domType, without)
-        # domSize = len(setsize[0])+len(setsize[1])
         
         if domType == 'bot':
             exponent = setsize[1]
@@ -33,15 +31,9 @@ class ForAllNode(Node):
             exponent = setsize[0]
         else:
             exponent = len(domain)
-
-        # exponent = list(set(exponent) - set(without))
-        # setsize[0] = list(set(setsize[0]) - set(without))
-        # setsize[1] = list(set(setsize[1]) - set(without))
         
-        # print("ALL", exponent)
         term = self.left.compute(setsize=setsize, removed=removed)
         result = term.integrate()
-        # print("ALL", result, (exponent))
         return Term(Pow(result, (exponent)))
     
     def maxDomainSize(self):
@@ -55,7 +47,7 @@ class ExistsNode(Node):
         self.objects = objects
         
     def compute(self, setsize=[], removed=[]):
-        domain, domType, without = self.objects[self.var]
+        domain, _, without = self.objects[self.var]
         domain = list(set(domain) - set(without))
 
         maxSize, removed = self.left.maxDomainSize()
@@ -69,7 +61,6 @@ class ExistsNode(Node):
             coeff = Term(binomial(maxSize, i))
             compute = self.left.compute(setsize=[i, setsize[0]-i, maxSize], removed=removed)
             result += coeff * compute
-            print("EXISTS", maxSize, coeff.data, (compute.data), sum(result.data))
         return result
 
     def maxDomainSize(self):
@@ -80,9 +71,7 @@ class OrNode(Node):
     def compute(self, setsize=[], removed=[]):
         leftTerm = self.left.compute(setsize=setsize, removed=removed)
         rightTerm = self.right.compute(setsize=setsize, removed=removed)
-        # print("ADD", leftTerm, rightTerm)
         result = leftTerm + rightTerm
-        # print("ADD result", result)
         return result
     
     def maxDomainSize(self):
@@ -96,12 +85,8 @@ class OrNode(Node):
 class AndNode(Node):
     def compute(self, setsize=[], removed=[]):
         leftTerm = self.left.compute(setsize=setsize, removed=removed)
-        # print("MUL LEFT", leftTerm)
         rightTerm = self.right.compute(setsize=setsize, removed=removed)
-        # print("MUL RIGHT", leftTerm)
-        # print("MUL", leftTerm, rightTerm)
         result = leftTerm * rightTerm
-        # print("MUL result", result)
         return result
     
     def maxDomainSize(self):
@@ -121,9 +106,6 @@ class ConstantNode(Node):
         self.objects = objects
 
     def compute(self, setsize=[], removed=[]):
-        # print(self.data, self.nodeName, self.varSet, self.objects)
-        # objects.update({node + var : (domains[dom.strip()], domType, without)})
-
         if setsize == []:
             domain, _, _ = self.objects[self.nodeName + 'X']
             setsize = [len(domain), len(domain), len(domain)]
@@ -139,7 +121,7 @@ class ConstantNode(Node):
 
             without = set(without) - set(['X', 'Y'])
             without = (without - set(removed))
-            print(self.nodeName, var, exponent, without, removed)
+
             if domType == "bot":
                 dom = max(0, setsize[1] - len(without))
             elif domType == "top":
@@ -153,8 +135,6 @@ class ConstantNode(Node):
             else:
                 exponent *= max(0, dom - dec)
 
-
-        print(self.nodeName, exponent, setsize)
         if self.data == "or":
             leftTerm = sum(self.left.compute(setsize=setsize).data)
             rightTerm = sum(self.right.compute(setsize=setsize).data)
@@ -166,7 +146,6 @@ class ConstantNode(Node):
         else:
             leftTerm = sum(self.left.compute(setsize=setsize).data)
             result = Term(Pow(leftTerm, exponent))
-        print("CONST", self.nodeName, result)
         return result
 
     def maxDomainSize(self):
@@ -186,7 +165,6 @@ class LeafNode(Node):
         self.algoType = algoType
 
     def compute(self, setsize=[], removed=[]):
-        # print("leaf", self.data)
         if type(self.weight) == tuple:
             return Term(self.weight[0], (int(self.weight[1][0]), int(self.weight[1][1])))
         else:
