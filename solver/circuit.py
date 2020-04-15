@@ -1,5 +1,6 @@
 from sympy import *
 from term import *
+import numpy as np
 
 hashed_inegrals = {}
 
@@ -17,10 +18,21 @@ class ForAllNode(Node):
         self.var = var
         self.objects = objects
         
-    def compute(self, setsize=None):
-        term = self.left.compute()
+    def compute(self, setsize=[]):
+        if setsize == []:
+            setsize = [len(self.objects[self.var])]
+
+        print("allsize", setsize)
+        if len(setsize) != 1:
+            part1 = setsize[0]
+            part2 = setsize[1]
+        else:
+            part1 = part2 = setsize[0]
+            
+        term = self.left.compute(setsize=[part1])
         result = term.integrate()
-        return Term(Pow(result, len(self.objects[self.var])), ())
+        print("ALL", part1, part2, result, Pow(result, part2))
+        return Term(Pow(result, part2))
     
 class ExistsNode(Node):
     def __init__(self, var=None, objects=None):
@@ -28,35 +40,75 @@ class ExistsNode(Node):
         self.var = var
         self.objects = objects
         
-    def compute(self, setsize=None):
-        if setsize == None:
-            setsize = len(self.objects[self.var])
+    def compute(self, setsize=[]):
+        if setsize == []:
+            setsize = [len(self.objects[self.var])]
 
-        result = Term()
-        for i in range(1, setsize+1):
-            coeff = Term(binomial(setsize, i))
-            compute = self.left.compute(setsize=i)
-            result += coeff * compute 
+        result = Term(0)
+        for i in range(0, setsize[0]+1):
+            coeff = Term(binomial(setsize[0], i))
+            compute = self.left.compute(setsize=[i, setsize[0]-i])
+            result += coeff * compute
+            print("EXISTS", coeff.data, (compute.data), sum(result.data))
         return result
 
 class OrNode(Node):
-    def compute(self, setsize=None):
-        leftTerm = self.left.compute()
-        rightTerm = self.right.compute()
+    def compute(self, setsize=[]):
+        leftTerm = self.left.compute(setsize=setsize)
+        rightTerm = self.right.compute(setsize=setsize)
         # print("ADD", leftTerm, rightTerm)
         result = leftTerm + rightTerm
         # print("ADD result", result)
         return result
     
 class AndNode(Node):
-    def compute(self, setsize=None):
-        leftTerm = self.left.compute()
-        rightTerm = self.right.compute()
+    def compute(self, setsize=[]):
+        leftTerm = self.left.compute(setsize=setsize)
+        rightTerm = self.right.compute(setsize=setsize)
         # print("MUL", leftTerm, rightTerm)
         result = leftTerm * rightTerm
         # print("MUL result", result)
         return result
-        
+
+class ConstantNode(Node):
+    def __init__(self, data=None, nodeName=None,  varSet=None, objects=None):
+        super(ConstantNode, self).__init__()
+        self.data = data
+        self.varSet = varSet
+        self.nodeName = nodeName
+        self.objects = objects
+
+    def compute(self, setsize=[]):
+        # print(self.data, self.nodeName, self.varSet, self.objects)
+        # objects.update({node + var : (domains[dom.strip()], domType, without)})
+
+        exponent = 1
+        setsizes = []
+        for var in self.varSet:
+            key = self.nodeName + var
+            domain, domType, without = self.objects[key]
+            if domType == "bot":
+                exponent *= setsize[1]
+            elif domType == "top":
+                exponent *= setsize[0]
+            else:
+                exponent *= (len(domain) - int(without != ''))
+
+        print(self.nodeName, exponent)
+        if self.data == "or":
+            leftTerm = sum(self.left.compute(setsize=setsize).data)
+            rightTerm = sum(self.right.compute(setsize=setsize).data)
+            result = Term(Pow(leftTerm + rightTerm, exponent))
+        elif self.data == "and":
+            leftTerm = sum(self.left.compute(setsize=setsize).data)
+            rightTerm = sum(self.right.compute(setsize=setsize).data)
+            result = Term(Pow(leftTerm * rightTerm, exponent))
+        else:
+            leftTerm = sum(self.left.compute(setsize=setsize).data)
+            result = Term(Pow(leftTerm, exponent))
+
+        return result
+            
 class LeafNode(Node):
     def __init__(self, data=None, weights=None, algoType=None):
         super(LeafNode, self).__init__()
@@ -64,7 +116,7 @@ class LeafNode(Node):
         self.weight = weights[data]
         self.algoType = algoType
 
-    def compute(self, setsize=None):
+    def compute(self, setsize=[]):
         if type(self.weight) == tuple:
             return Term(self.weight[0], (int(self.weight[1][0]), int(self.weight[1][1])))
         else:

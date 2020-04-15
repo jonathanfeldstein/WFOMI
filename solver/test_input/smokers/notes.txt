@@ -7,3 +7,18 @@ person = {Guy, Nima, Wannes, Jesse, Luc}
 friends(person,person)
 smokes(person)
 2 friends(x,y) ^ smokes(x) => smokes(y)
+
+domain person 5 {Wannes,Jesse,Nima,Luc,Guy}
+predicate friends(person,person) 1.0 1.0
+predicate smokes(person) 1.0 1.0
+predicate f_1(person,person) 7.38905609893065 1.0
+
+f_1(X,Y) ∨ friends(X,Y)
+f_1(X,Y) ∨ smokes(X)
+f_1(X,Y) ∨ ¬smokes(Y)
+smokes(X) ∨ ¬smokes(Y) ∨ ¬friends(Y,X) ∨ ¬f_1(Y,X)
+
+
+
+hidden predicates
+- outer node

@@ -2,6 +2,7 @@ from circuit import *
 from sympy.parsing.sympy_parser import parse_expr
 import re
 
+
 class Parser(object):
     def parseCircuit(self, name, weights, domains, algoType):
         print("parsing file:", name)
@@ -41,12 +42,78 @@ class Parser(object):
                     for dom, var in zip(domainSet, varSet):
                         members = [x for x in domains[dom] if x not in without]
                         objects.update({var : members})
+                elif data == 'C':
+                    varSet = line[line.find("{")+1:line.find("}")].split(",")
+                    line = line[line.find("}")+2:-1]
+                    without = []
+
+                    doms = line[0:line.find("}")].split(",")
+                    objects = {}
+
+                    domainSet = []
+                    domainTypeSet = []
+                    withoutSet = []
+                    for dom in doms:
+                        if len(dom.split("/")) > 1:
+                            domainType, without = dom.split("/")
+                            withoutSet.append(without)
+                            if len(domainType.split("-")) > 1:
+                                d, domainType = domainType.split("-")
+                                domainSet.append(d)
+                            else:
+                                domainSet.append(domainType)
+                            domainTypeSet.append(domainType)
+                        else:
+                            if len(dom.split("-")) > 1:
+                                d, domainType = dom.split("-")
+                                domainSet.append(d)
+                                domainTypeSet.append(domainType)
+                            else:
+                                d = dom.split(",")
+                                domainSet.append(d[0])
+                                domainTypeSet.append("")
+                            withoutSet.append("")
+
+                    for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):                            
+                        objects.update({node + var : (domains[dom.strip()], domType, without)})
+
+                    line = line[line.find("}")+2:-1]
+                    if line.find("or") != -1 or line.find("and") != -1:
+                        if line.find("or") != -1:
+                            leftData, rightData = line.split("or")
+                            mainNode = ConstantNode("or", node, varSet, objects)
+                        else:
+                            leftData, rightData = line.split("and")
+                            mainNode = ConstantNode("and", node, varSet, objects)
+                        leftData = leftData.lower().strip()
+                        rightData = rightData.lower().strip()
+                               
+                        leftNode = LeafNode(leftData, weights, algoType)
+                        rightNode = LeafNode(rightData, weights, algoType)
+                        leftName = node + "a"
+                        rightName = node + "b"
+
+                        nodes.update({leftName : leftNode})
+                        nodes.update({rightName : rightNode})
+                        nodes.update({node : mainNode})
+                        connections.append((node, leftName))
+                        connections.append((node, rightName))
+                    else:
+                        leftData = line.lower().strip()
+                        leftNode = LeafNode(leftData, weights, algoType)
+                        leftName = node + "a"
+                        mainNode = ConstantNode("leaf", node, varSet, objects)
+                        nodes.update({leftName : leftNode})
+                        nodes.update({node : mainNode})
+                        connections.append((node, leftName))
+                                                
                 else:
                     var = None
                     objects = None
 
-                newNode = CreateNewNode(data, var, objects, weights, algoType)
-                nodes.update({node : newNode})
+                if data != "C":
+                    newNode = CreateNewNode(data, var, objects, weights, algoType)
+                    nodes.update({node : newNode})
 
         root = nodeNumPattern.match(content[0]).group().strip()
         nodes = self.connectNodes(nodes, connections)
