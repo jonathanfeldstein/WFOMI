@@ -31,6 +31,9 @@ class Parser(object):
                 matchData = nodeDataPattern.match(line[matchNum.end():])
                 node = matchNum.group().strip()
                 data = matchData.group().strip()
+                if data.find("(") != -1:
+                    data = data[0:data.find("(")]
+                
                 if data == 'A' or data == 'E':
                     varSet = line[line.find("{")+1:line.find("}")].split(",")
                     without = []
@@ -94,7 +97,9 @@ class Parser(object):
                             mainNode = ConstantNode("and", node, varSet, objects)
                         leftData = leftData.lower().strip()
                         rightData = rightData.lower().strip()
-                               
+
+                        leftData = leftData[0:leftData.find('(')]
+                        rightData = rightData[0:rightData.find('(')]
                         leftNode = LeafNode(leftData, weights, algoType)
                         rightNode = LeafNode(rightData, weights, algoType)
                         leftName = node + "a"
@@ -107,6 +112,8 @@ class Parser(object):
                         connections.append((node, rightName))
                     else:
                         leftData = line.lower().strip()
+                        leftData = leftData[0:leftData.find('(')]
+                        rightData = rightData[0:rightData.find('(')]
                         leftNode = LeafNode(leftData, weights, algoType)
                         leftName = node + "a"
                         mainNode = ConstantNode("leaf", node, varSet, objects)
@@ -144,6 +151,8 @@ class Parser(object):
                 domains.update({domain : objects})
             elif line.find(":") != -1:
                 function = line[0:line.find(":")]
+                if function.find('(') != -1:
+                    function = function[0:function.find('(')]
                 weight = line[line.find("[")+1:line.find("]")].split(",")
                 weights.update({function : float(weight[0])})
                 weights.update({"neg " + function : float(weight[1])})
@@ -153,6 +162,8 @@ class Parser(object):
                         weights.update({"neg " + function.replace('x', elem) : float(weight[1])})
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
+                if function.find('(') != -1:
+                    function = function[0:function.find('(')]
                 weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
                     bounds = tuple(line[line.find("[")+1:line.find("]")].split(","))

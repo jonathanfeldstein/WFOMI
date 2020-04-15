@@ -123,17 +123,12 @@ class ConstantNode(Node):
             without = (without - set(removed))
 
             if domType == "bot":
-                dom = max(0, setsize[1] - len(without))
+                exponent *= max(0, setsize[1] - len(without))
             elif domType == "top":
-                dom = max(0, setsize[0] - len(without))
+                exponent *= max(0, setsize[0] - len(without))
             else:
-                dom = max(0, setsize[2] - len(without))
-                
-            if dom - dec < 1 and exponent - dec >= 0:
-                exponent -= dec
-                exponent *= dom
-            else:
-                exponent *= max(0, dom - dec)
+                exponent *= max(0, setsize[2] - len(without))
+            exponent = max(0, exponent - dec)
 
         if self.data == "or":
             leftTerm = sum(self.left.compute(setsize=setsize).data)
