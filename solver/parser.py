@@ -17,17 +17,18 @@ class Parser(object):
             
         connections = []
         nodes = {}
+        maxDomainSize = 0
 
         for line in content:
             matchLink = linkPattern.match(line)
             matchNum = nodeNumPattern.match(line)
             if matchLink != None:
-                matchData = nodeDataPattern.match(line[matchNum.end()+3:-1]) #+3 for the _->, space+arrow
+                matchData = nodeDataPattern.match(line[matchNum.end()+3:]) #+3 for the _->, space+arrow
                 node1 = matchNum.group().strip()
                 node2 = matchData.group().strip()
                 connections.append((node1, node2))
             else:
-                matchData = nodeDataPattern.match(line[matchNum.end():-1])
+                matchData = nodeDataPattern.match(line[matchNum.end():])
                 node = matchNum.group().strip()
                 data = matchData.group().strip()
                 if data == 'A' or data == 'E':
@@ -38,24 +39,33 @@ class Parser(object):
                         domainSet, without = domainSet.split(","), without.split(",")
                     else:
                         domainSet = line[line.find("}")+2:-2].split(",")
+
+                    domainType = ""
+                    if len(domainSet[0].split("-")) > 1:
+                        domainSet, domainType = domainSet[0].split("-")
+                        domainSet = [domainSet]
+
                     objects = {}
                     for dom, var in zip(domainSet, varSet):
-                        members = [x for x in domains[dom] if x not in without]
-                        objects.update({var : members})
+                        # domainSize = len(domains[dom]) - len(without)
+                        # if domainSize > maxDomainSize:
+                        #     maxDomainSize = domainSize
+                        objects.update({var : (domains[dom], domainType, without)})
+
                 elif data == 'C':
                     varSet = line[line.find("{")+1:line.find("}")].split(",")
-                    line = line[line.find("}")+2:-1]
-                    without = []
+                    line = line[line.find("}")+2:]
 
                     doms = line[0:line.find("}")].split(",")
                     objects = {}
-
+                    without = []
                     domainSet = []
                     domainTypeSet = []
                     withoutSet = []
                     for dom in doms:
                         if len(dom.split("/")) > 1:
                             domainType, without = dom.split("/")
+                            without = without.split("+")
                             withoutSet.append(without)
                             if len(domainType.split("-")) > 1:
                                 d, domainType = domainType.split("-")
@@ -74,10 +84,14 @@ class Parser(object):
                                 domainTypeSet.append("")
                             withoutSet.append("")
 
-                    for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):                            
+                    for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
+                        # domainSize = len(domains[dom.strip()]) - len(without)
+                        # print(node, domainSize)
+                        # if domainSize > maxDomainSize:
+                        #     maxDomainSize = domainSize
                         objects.update({node + var : (domains[dom.strip()], domType, without)})
 
-                    line = line[line.find("}")+2:-1]
+                    line = line[line.find("}")+2:]
                     if line.find("or") != -1 or line.find("and") != -1:
                         if line.find("or") != -1:
                             leftData, rightData = line.split("or")

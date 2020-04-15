@@ -1,18 +1,18 @@
   n42 and
   n0  C{X}{person/Guy} friends(X,X) or neg friends(X,X) 
   n41 and
-  n1  C{X}{person} friends(X,Guy) or neg friends(Guy,X) 
+  n1  C{X}{person} friends(X,Guy) or neg friends(X,Guy) 
   n40 and
-  n2  smokes(Guy)
+  n2  smokes(Guy) 
   n39 and
   n3  C{X}{person} f_1(X,Guy) 
   n38 E{x}{person}
   n37 and
   n4  C{X}{person-top/Guy} friends(Guy,X) or neg friends(Guy,X)  
   n36 and
-  n5  C{X,Y}{person/Guy, person-top/Guy} friends(X,Y) or neg friends(X,Y)  
+  n5  C{X,Y}{person-bot/Guy+Y, person-bot/Guy} friends(X,Y) or neg friends(X,Y)  
   n35 and
-  n6  C{X,Y}{person/Guy, person-top/Guy} friends(X,Y) or neg friends(X,Y) 
+  n6  C{X,Y}{person/Guy+Y, person-top/Guy} friends(X,Y) or neg friends(X,Y) 
   n34 and
   n7  C{X}{person-top/Guy} smokes(X) 
   n33 and
@@ -22,25 +22,25 @@
   n31 and
   n10 C{X}{person-bot/Guy} neg smokes(X) 
   n30 and
-  n11 C{X,Y}{person-bit/Guy, person-bot/Guy} f_1(X,Y)  
+  n11 C{X,Y}{person-bot/Guy, person-bot/Guy} f_1(X,Y)  
   n29 and
-  n20 A{x}{person/Guy}
-  n19 A{y}{person/Guy}
+  n20 A{x}{person-top/Guy}
+  n19 A{y}{person-bot/Guy}
   n18 or
   n14 and
-  n12  f_1(x,y)
-  n13  neg friends(x,y)
+  n12  f_1(x,y) 
+  n13  neg friends(x,y) 
   n17 and
-  n15  neg f_1(x,y)
-  n16  friends(x,y)
-  n28 A{x}{person/Guy}
+  n15  neg f_1(x,y) 
+  n16  friends(x,y) 
+  n28 A{x}{person-bot/Guy}
   n27 or
   n23 and
-  n21  f_1(Guy,x)
-  n22  neg friends(Guy,x)
+  n21  f_1(Guy,x) 
+  n22  neg friends(Guy,x) 
   n26 and
-  n24  neg f_1(Guy,x)
-  n25  friends(Guy,x)
+  n24  neg f_1(Guy,x) 
+  n25  friends(Guy,x) 
   n42 -> n0;
   n42 -> n41;
   n41 -> n1;
