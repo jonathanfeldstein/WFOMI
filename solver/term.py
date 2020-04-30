@@ -60,7 +60,12 @@ class Term(object):
             if len(args) == 1:
                 integrals.append(Integral(data, (args, bounds[0], bounds[1])).evalf())
             else:
+                integral = None
                 for arg, bound in zip(args, bounds):
-                    integrals.append(Integral(data, (arg, bound[0], bound[1])).evalf())
+                    if integral == None:
+                        integral = Integral(data, (arg, bound[0], bound[1])).evalf()
+                    else:
+                        integral = Integral(integral, (arg, bound[0], bound[1])).evalf()
+                integrals.append(integral)
         return sum(integrals)
 
