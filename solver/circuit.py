@@ -4,6 +4,10 @@ import numpy as np
 
 hashed_inegrals = {}
 
+# The nodes represent the nodes of the cicuit
+# each node has a compute class which follows the computation step of the algoithm for the given node
+# the maxDomainSize is used to compute the maximum domain size for the existential node
+
 class Node(object):
     def __init__(self, left=None, right=None):
         self.left = left
@@ -98,28 +102,29 @@ class AndNode(Node):
             return (right[0], right[1])
         
 class ConstantNode(Node):
-    def __init__(self, data=None, nodeName=None,  varSet=None, objects=None):
+    def __init__(self, data=None, nodeName=None,  varList=None, objects=None):
         super(ConstantNode, self).__init__()
         self.data = data
-        self.varSet = varSet
+        self.varList = varList
         self.nodeName = nodeName
         self.objects = objects
 
     def compute(self, setsize=[], removed=[]):
         if setsize == []:
-            domain, _, _ = self.objects[self.nodeName + 'X']
+            domain, _, _ = self.objects[self.nodeName + self.varList[0]]
             setsize = [len(domain), len(domain), len(domain)]
             
         exponent = 1
-        for var in self.varSet:
+        for var in self.varList:
             key = self.nodeName + var
             domain, domType, without = self.objects[key]
                 
             dec = 0
-            if var != 'X' and 'X' in without or var != 'Y' and 'Y' in without:
-                dec = 1
+            for otherVar in self.varList:
+                if var != otherVar and otherVar in without:
+                    dec = 1
 
-            without = set(without) - set(['X', 'Y'])
+            without = set(without) - set(self.varList)
             without = (without - set(removed))
 
             if domType == "bot":
@@ -145,7 +150,7 @@ class ConstantNode(Node):
 
     def maxDomainSize(self):
         domSize = 0
-        for var in self.varSet:
+        for var in self.varList:
             key = self.nodeName + var
             domain, _, without = self.objects[key]
             if len(list(set(domain) - set(without))) > domSize:
@@ -161,7 +166,7 @@ class LeafNode(Node):
 
     def compute(self, setsize=[], removed=[]):
         if type(self.weight) == tuple:
-            return Term(self.weight[0], (int(self.weight[1][0]), int(self.weight[1][1])))
+            return Term(self.weight[0], self.weight[2], (int(self.weight[1][0]), int(self.weight[1][1])))
         else:
             return Term(self.weight, ())
 

@@ -22,6 +22,8 @@ class Parser(object):
         for line in content:
             matchLink = linkPattern.match(line)
             matchNum = nodeNumPattern.match(line)
+
+            #parse the connection line like 'n0 -> n1' else parse the node line
             if matchLink != None:
                 matchData = nodeDataPattern.match(line[matchNum.end()+3:]) #+3 for the _->, space+arrow
                 node1 = matchNum.group().strip()
@@ -33,7 +35,8 @@ class Parser(object):
                 data = matchData.group().strip()
                 if data.find("(") != -1:
                     data = data[0:data.find("(")]
-                
+
+                #parse the existential or univesal node
                 if data == 'A' or data == 'E':
                     varSet = line[line.find("{")+1:line.find("}")].split(",")
                     without = []
@@ -52,6 +55,7 @@ class Parser(object):
                     for dom, var in zip(domainSet, varSet):
                         objects.update({var : (domains[dom], domainType, without)})
 
+                #parse the constant node and add it to the list of nodes.
                 elif data == 'C':
                     varSet = line[line.find("{")+1:line.find("}")].split(",")
                     line = line[line.find("}")+2:]
@@ -125,6 +129,7 @@ class Parser(object):
                     var = None
                     objects = None
 
+                # Add the parsed node to the list of all nodes, the constant node is added seperately due to its different construction step
                 if data != "C":
                     newNode = CreateNewNode(data, var, objects, weights, algoType)
                     nodes.update({node : newNode})
@@ -133,6 +138,14 @@ class Parser(object):
         nodes = self.connectNodes(nodes, connections)
         return root, nodes
 
+
+    # parse weights file.
+    # In the weights file there can be 3 types of lines:
+    # the domain line eg. 'person = {Alice}'
+    # the simple weight line eg. 'pre: [1, 10]', meaning the predicate pre is assigned weight 1 and its negation is assigned weight 10
+    # the complex weight line eg. 'bmi(x)fun x**2 + 10 bounds [5, 10]'
+    # note that for complex weights the negation weight has to be specified seperately eg. 'neg bmi(x)fun x**2 + 10 bounds [10. 20]'
+    # IMPORTANT - the name of the arguments of the weight functions must correspond to the argument names used in the circuit description 
     def parseWeights(self, name):
         print("parsing file:", name)
 
@@ -144,38 +157,37 @@ class Parser(object):
         for line in content:
             function = domain = ""
             weight = objects = []
-                
+            
+            # if line contains '=' it must be the domain line, parse it accordingly
             if line.find("=") != -1:
                 domain = line[0:line.find("=")-1]
                 objects = line[line.find("{")+1:line.find("}")].split(",")
                 domains.update({domain : objects})
+            # if line contains ':' it must be the simple weight line
             elif line.find(":") != -1:
                 function = line[0:line.find(":")]
-                if function.find('(') != -1:
-                    function = function[0:function.find('(')]
                 weight = line[line.find("[")+1:line.find("]")].split(",")
                 weights.update({function : float(weight[0])})
                 weights.update({"neg " + function : float(weight[1])})
-                for item in domains.items():
-                    for elem in item[1]:
-                        weights.update({function.replace('x', elem) : float(weight[0])})
-                        weights.update({"neg " + function.replace('x', elem) : float(weight[1])})
+            # if line contains 'fun' it must be the complex weight line
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
                 if function.find('(') != -1:
                     function = function[0:function.find('(')]
+                args = line[line.find('(')+1:line.find(')')].split(",")
                 weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
                     bounds = tuple(line[line.find("[")+1:line.find("]")].split(","))
-                    weights.update({function : (weight, bounds)})
-                    for item in domains.items():
-                        for elem in item[1]:
-                            weights.update({function.replace('x', elem) : (weight, bounds)})
+                    weights.update({function : (weight, bounds, args)})
+                    
+                    # for item in domains.items():
+                    #     for elem in item[1]:
+                    #         weights.update({function.replace('x', elem) : (weight, bounds)})
                 else:
                     weights.update({function : weight})
-                    for item in domains.items():
-                        for elem in item[1]:
-                            weights.update({function.replace('x', elem) : weight})
+                    # for item in domains.items():
+                    #     for elem in item[1]:
+                    #         weights.update({function.replace('x', elem) : weight})
         return weights, domains
 
     def connectNodes(self, nodes, connections):
