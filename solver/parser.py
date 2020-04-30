@@ -178,16 +178,10 @@ class Parser(object):
                 weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
                     bounds = tuple(line[line.find("[")+1:line.find("]")].split(","))
-                    weights.update({function : (weight, bounds, args)})
-                    
-                    # for item in domains.items():
-                    #     for elem in item[1]:
-                    #         weights.update({function.replace('x', elem) : (weight, bounds)})
+                    weights.update({function : (weight, bounds, args)})         
                 else:
                     weights.update({function : weight})
-                    # for item in domains.items():
-                    #     for elem in item[1]:
-                    #         weights.update({function.replace('x', elem) : weight})
+
         return weights, domains
 
     def connectNodes(self, nodes, connections):

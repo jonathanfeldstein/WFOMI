@@ -32,17 +32,19 @@ class Term(object):
         for lhsData, lhsArg, lhsBound in zip(self.data, self.args, self.bounds):
             for rhsData, rhsArg, rhsBound in zip(other.data, other.args, other.bounds):
                 newData.append(lhsData * rhsData)
-                if lhsArg != rhsArg:
-                    newArgs.append([lhsArg, rhsArg])
-                else:
-                    newArgs.append(lhsArg)
+                if lhsArg != rhsArg and lhsArg != () and rhsArg != ():
+                    newArgs.append((lhsArg, rhsArg))
+                    newBounds.append((lhsBound, rhsBound))                   
                 if rhsBound != ():
                     if lhsBound != ():
                         newBounds.append((max(lhsBound[0], rhsBound[0]), min(lhsBound[1], rhsBound[1])))
+                        newArgs.append(lhsArg)
                     else:
                         newBounds.append(rhsBound)
+                        newArgs.append(rhsArg)
                 else:
                     newBounds.append(lhsBound)
+                    newArgs.append(lhsArg)
         result = Term(newData, newArgs, newBounds)
         return result
     
@@ -54,7 +56,11 @@ class Term(object):
             return sum(self.data)
         
         integrals = []
-        for data, args, bound in zip(self.data, self.args, self.bounds):
-            integrals.append(Integral(data, (args, bound[0], bound[1])).evalf())
+        for data, args, bounds in zip(self.data, self.args, self.bounds):
+            if len(args) == 1:
+                integrals.append(Integral(data, (args, bounds[0], bounds[1])).evalf())
+            else:
+                for arg, bound in zip(args, bounds):
+                    integrals.append(Integral(data, (arg, bound[0], bound[1])).evalf())
         return sum(integrals)
 
