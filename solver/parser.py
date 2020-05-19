@@ -6,15 +6,15 @@ import re
 class Parser(object):
     def parseCircuit(self, name, weights, domains, algoType):
         print("parsing file:", name)
-        
+
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
-        nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE) 
+        nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
 
         linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
-        
+
         with open(name) as f:
             content = f.readlines()
-            
+
         connections = []
         nodes = {}
         maxDomainSize = 0
@@ -23,9 +23,9 @@ class Parser(object):
             matchLink = linkPattern.match(line)
             matchNum = nodeNumPattern.match(line)
 
-            #parse the connection line like 'n0 -> n1' else parse the node line
-            if matchLink != None:
-                matchData = nodeDataPattern.match(line[matchNum.end()+3:]) #+3 for the _->, space+arrow
+            # parse the connection line like 'n0 -> n1' else parse the node line
+            if matchLink is not None:
+                matchData = nodeDataPattern.match(line[matchNum.end() + 3:])  # +3 for the _->, space+arrow
                 node1 = matchNum.group().strip()
                 node2 = matchData.group().strip()
                 connections.append((node1, node2))
@@ -36,15 +36,15 @@ class Parser(object):
                 if data.find("(") != -1:
                     data = data[0:data.find("(")]
 
-                #parse the existential or univesal node
+                # parse the existential or univesal node
                 if data == 'A' or data == 'E':
-                    varSet = line[line.find("{")+1:line.find("}")].split(",")
+                    varSet = line[line.find("{") + 1:line.find("}")].split(",")
                     without = []
-                    if len(line[line.find("}")+2:-2].split("/")) > 1:
-                        domainSet, without = line[line.find("}")+2:-2].split("/")
+                    if len(line[line.find("}") + 2:-2].split("/")) > 1:
+                        domainSet, without = line[line.find("}") + 2:-2].split("/")
                         domainSet, without = domainSet.split(","), without.split(",")
                     else:
-                        domainSet = line[line.find("}")+2:-2].split(",")
+                        domainSet = line[line.find("}") + 2:-2].split(",")
 
                     domainType = ""
                     if len(domainSet[0].split("-")) > 1:
@@ -53,12 +53,12 @@ class Parser(object):
 
                     objects = {}
                     for dom, var in zip(domainSet, varSet):
-                        objects.update({var : (domains[dom], domainType, without)})
+                        objects.update({var: (domains[dom], domainType, without)})
 
-                #parse the constant node and add it to the list of nodes.
+                # parse the constant node and add it to the list of nodes.
                 elif data == 'C':
-                    varSet = line[line.find("{")+1:line.find("}")].split(",")
-                    line = line[line.find("}")+2:]
+                    varSet = line[line.find("{") + 1:line.find("}")].split(",")
+                    line = line[line.find("}") + 2:]
 
                     doms = line[0:line.find("}")].split(",")
                     objects = {}
@@ -89,9 +89,9 @@ class Parser(object):
                             withoutSet.append("")
 
                     for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
-                        objects.update({node + var : (domains[dom.strip()], domType, without)})
+                        objects.update({node + var: (domains[dom.strip()], domType, without)})
 
-                    line = line[line.find("}")+2:]
+                    line = line[line.find("}") + 2:]
                     if line.find("or") != -1 or line.find("and") != -1:
                         if line.find("or") != -1:
                             leftData, rightData = line.split("or")
@@ -109,9 +109,9 @@ class Parser(object):
                         leftName = node + "a"
                         rightName = node + "b"
 
-                        nodes.update({leftName : leftNode})
-                        nodes.update({rightName : rightNode})
-                        nodes.update({node : mainNode})
+                        nodes.update({leftName: leftNode})
+                        nodes.update({rightName: rightNode})
+                        nodes.update({node: mainNode})
                         connections.append((node, leftName))
                         connections.append((node, rightName))
                     else:
@@ -121,10 +121,10 @@ class Parser(object):
                         leftNode = LeafNode(leftData, weights, algoType)
                         leftName = node + "a"
                         mainNode = ConstantNode("leaf", node, varSet, objects)
-                        nodes.update({leftName : leftNode})
-                        nodes.update({node : mainNode})
+                        nodes.update({leftName: leftNode})
+                        nodes.update({node: mainNode})
                         connections.append((node, leftName))
-                                                
+
                 else:
                     var = None
                     objects = None
@@ -132,12 +132,11 @@ class Parser(object):
                 # Add the parsed node to the list of all nodes, the constant node is added seperately due to its different construction step
                 if data != "C":
                     newNode = CreateNewNode(data, var, objects, weights, algoType)
-                    nodes.update({node : newNode})
+                    nodes.update({node: newNode})
 
         root = nodeNumPattern.match(content[0]).group().strip()
         nodes = self.connectNodes(nodes, connections)
         return root, nodes
-
 
     # parse weights file.
     # In the weights file there can be 3 types of lines:
@@ -157,37 +156,37 @@ class Parser(object):
         for line in content:
             function = domain = ""
             weight = objects = []
-            
+
             # if line contains '=' it must be the domain line, parse it accordingly
             if line.find("=") != -1:
-                domain = line[0:line.find("=")-1]
-                objects = line[line.find("{")+1:line.find("}")].split(",")
-                domains.update({domain : objects})
+                domain = line[0:line.find("=") - 1]
+                objects = line[line.find("{") + 1:line.find("}")].split(",")
+                domains.update({domain: objects})
             # if line contains ':' it must be the simple weight line
             elif line.find(":") != -1:
                 function = line[0:line.find(":")]
-                weight = line[line.find("[")+1:line.find("]")].split(",")
-                weights.update({function : float(weight[0])})
-                weights.update({"neg " + function : float(weight[1])})
+                weight = line[line.find("[") + 1:line.find("]")].split(",")
+                weights.update({function: float(weight[0])})
+                weights.update({"neg " + function: float(weight[1])})
             # if line contains 'fun' it must be the complex weight line
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
                 if function.find('(') != -1:
                     function = function[0:function.find('(')]
-                args = line[line.find('(')+1:line.find(')')].split(",")
-                weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
+                args = line[line.find('(') + 1:line.find(')')].split(",")
+                weight = parse_expr(line[line.find("fun") + 4:line.find("bounds")])
                 if line.find("bounds") != -1:
-                    bounds = tuple(line[line.find("[")+1:line.find("]")].split(","))
-                    weights.update({function : (weight, bounds, args)})         
+                    bounds = tuple(line[line.find("[") + 1:line.find("]")].split(","))
+                    weights.update({function: (weight, bounds, args)})
                 else:
-                    weights.update({function : weight})
+                    weights.update({function: weight})
 
         return weights, domains
 
     def connectNodes(self, nodes, connections):
         for node1, node2 in connections:
-            if nodes[node1].left == None:
+            if nodes[node1].left is None:
                 nodes[node1].left = nodes[node2]
-            elif nodes[node1].right == None:
+            elif nodes[node1].right is None:
                 nodes[node1].right = nodes[node2]
         return nodes

@@ -1,6 +1,6 @@
-person = {Alice}
-f_1: [10, 1]
-BMI(x)fun sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi)) bounds[35, 45]
-neg BMI(x)fun sqrt(2)*exp(-(x - 27)**2/2592)/(72*sqrt(pi)) bounds[10, 35]
-diabetes(x)fun (a/10) - 1 bounds[10, 20]
-neg diabetes(x)fun 8 - (a/10) bounds[20, 30]
+person = {Alice, Bob, Charlie, Dave, Eve, Franz. Heinrich, Ike, Jesus}
+f_1: [0.001, 0.0001]
+BMI(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45]
+neg BMI(b)fun -0.001*(b-27)**2+0.3 bounds[10, 35]
+diabetes(b)fun (b/10) - 1
+neg diabetes(b)fun 8 - (b/10)
