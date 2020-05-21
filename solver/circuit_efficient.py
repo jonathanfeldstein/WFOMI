@@ -171,9 +171,7 @@ class LeafNode(Node):
     def compute(self, setsize=None, removed=None):
         if type(self.weight) == tuple:
             wfs = [sympify(self.weight[0])]
-            var = b#sympify(self.weight[2])
-            bound = [int(self.weight[1][0]), int(self.weight[1][1])]
-            bounds = [{var: bound}]
+            bounds = [{sympify(self.weight[2][0]): [int(self.weight[1][0]), int(self.weight[1][1])]}]
             result = Term(wfs, bounds, [1])
             return result
         else:
