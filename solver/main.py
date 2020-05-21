@@ -1,5 +1,5 @@
 from parser import *
-from circuit import *
+from circuit_efficient import *
 import time
 import sys
 from statistics import mean
@@ -21,7 +21,7 @@ def main():
         startTime = time.time()
         partitionFunc = partitionNodes[partitionRoot].compute().integrate()
         queryFunc = queryNodes[queryRoot].compute().integrate()
-        queryProb = queryFunc / partitionFunc
+        queryProb = queryFunc.cst[0] / partitionFunc.cst[0]
         endTime = time.time()
         result_time = endTime - startTime
         time_100.append(result_time)
