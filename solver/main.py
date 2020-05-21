@@ -17,7 +17,7 @@ def main():
     queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains, algoType)
 
     time_100 = []
-    for i in range(100):
+    for i in range(1):
         startTime = time.time()
         partitionFunc = partitionNodes[partitionRoot].compute().integrate()
         queryFunc = queryNodes[queryRoot].compute().integrate()

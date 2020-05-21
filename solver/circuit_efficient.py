@@ -139,17 +139,19 @@ class ConstantNode(Node):
             exponent = max(0, exponent - dec)
 
         if self.data == "or":
-            leftTerm = sum(self.left.compute(setsize=setsize).data)
-            rightTerm = sum(self.right.compute(setsize=setsize).data)
+            leftTerm = self.left.compute(setsize=setsize)
+            rightTerm = self.right.compute(setsize=setsize)
             result = leftTerm + rightTerm
         elif self.data == "and":
-            leftTerm = sum(self.left.compute(setsize=setsize).data)
-            rightTerm = sum(self.right.compute(setsize=setsize).data)
+            leftTerm = self.left.compute(setsize=setsize)
+            rightTerm = self.right.compute(setsize=setsize)
             result = leftTerm * rightTerm
         else:
-            result = sum(self.left.compute(setsize=setsize).data)
+            result = self.left.compute(setsize=setsize)
+
         result = result.integrate()
         return Term(Pow(result, exponent))
+
     def maxDomainSize(self):
         domSize = 0
         without = None
@@ -171,8 +173,11 @@ class LeafNode(Node):
     def compute(self, setsize=None, removed=None):
         if type(self.weight) == tuple:
             wfs = [sympify(self.weight[0])]
-            bounds = [{sympify(self.weight[2][0]): [int(self.weight[1][0]), int(self.weight[1][1])]}]
-            result = Term(wfs, bounds, [1])
+            args = [sympify(arg) for arg in self.weight[2]]
+            const = int(self.weight[3])
+            bounds = [list(bound) for bound in self.weight[1]]
+            bounds = [dict(zip(args, bounds))]
+            result = Term(wfs, bounds, [const])
             return result
         else:
             return Term([sympify(self.weight)], [{}], [1])
@@ -192,3 +197,5 @@ def CreateNewNode(data=None, var=None, objects=None, weights=None, algoType=None
         return ExistsNode(var, objects)
     else:
         return LeafNode(data, weights, algoType)
+
+ 

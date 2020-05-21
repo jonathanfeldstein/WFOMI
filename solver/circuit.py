@@ -1,5 +1,5 @@
 from sympy import *
-from term import *
+from term_efficient import *
 import numpy as np
 
 """The nodes represent the nodes of the cicuit
@@ -171,7 +171,7 @@ class LeafNode(Node):
 
     def compute(self, setsize=None, removed=None):
         if type(self.weight) == tuple:
-            return Term(self.weight[0], self.weight[2], (int(self.weight[1][0]), int(self.weight[1][1])))
+            return Term(self.weight[0], self.weight[2], self.weight[1])
         else:
             return Term(self.weight, ())
 

@@ -1,4 +1,4 @@
-from circuit import *
+from circuit_efficient import *
 from sympy.parsing.sympy_parser import parse_expr
 import re
 
@@ -174,10 +174,14 @@ class Parser(object):
                 if function.find('(') != -1:
                     function = function[0:function.find('(')]
                 args = line[line.find('(') + 1:line.find(')')].split(",")
-                weight = parse_expr(line[line.find("fun") + 4:line.find("bounds")])
+                print(line[line.find("fun")+4:line.find("bounds")])
+                weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
-                    bounds = tuple(line[line.find("[") + 1:line.find("]")].split(","))
-                    weights.update({function: (weight, bounds, args)})
+                    bounds = list(line[line.find("[") + 1:line.find("]")].split(","))
+                    it = iter(bounds)
+                    bounds = list(zip(it, it))
+                    const = line[line.find('const')+6:-2]
+                    weights.update({function: (weight, bounds, args, const)})
                 else:
                     weights.update({function: weight})
 

@@ -57,6 +57,7 @@ class Term(object):
             return sum(self.data)
 
         integrals = []
+        print(self.args)
         for data, args, bounds in zip(self.data, self.args, self.bounds):
             # Simplify expression, by expanding into sum of simple functions, e.g. x*(x**2+2)=> x**3+2x
             data = data.expand()
