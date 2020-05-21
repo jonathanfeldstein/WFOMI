@@ -138,20 +138,19 @@ class ConstantNode(Node):
             exponent = max(0, exponent - dec)
 
         if self.data == "or":
-            leftTerm = sum(self.left.compute(setsize=setsize).data)
-            rightTerm = sum(self.right.compute(setsize=setsize).data)
+            leftTerm = self.left.compute(setsize=setsize)
+            rightTerm = self.right.compute(setsize=setsize)
             result = leftTerm + rightTerm
-            # return Term(Pow(leftTerm + rightTerm, exponent))
         elif self.data == "and":
-            leftTerm = sum(self.left.compute(setsize=setsize).data)
-            rightTerm = sum(self.right.compute(setsize=setsize).data)
+            leftTerm = self.left.compute(setsize=setsize)
+            rightTerm = self.right.compute(setsize=setsize)
             result = leftTerm * rightTerm
-            # return Term(Pow(leftTerm * rightTerm, exponent))
         else:
-            result = sum(self.left.compute(setsize=setsize).data)
-            # return Term(Pow(leftTerm, exponent))
+            result = self.left.compute(setsize=setsize)
+
         result = result.integrate()
         return Term(Pow(result, exponent))
+    
     def maxDomainSize(self):
         domSize = 0
         without = None
