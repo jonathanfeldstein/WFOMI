@@ -52,6 +52,6 @@ class Term(object):
         return "wfs: " + str(self.wfs) + " bounds: " + str(self.bounds) + "cst: " + str(self.cst)
 
     def integrate(self):
-        integrated = {wf: wf.integrate(*wf.free_symbols) if hasattr(wf, 'free_symbols') else wf for wf in set(self.wfs)}
+        integrated = {wf: wf.integrate(*wf.free_symbols) if hasattr(wf, 'free_symbols') and (len(wf.free_symbols) != 0) else wf for wf in set(self.wfs)}
         integral = [symbolic_to_numeric(integrated[self.wfs[i]], self.bounds[i])*self.cst[i] if hasattr(self.wfs[i], 'free_symbols') else self.wfs[i]*self.cst[i] for i in range(len(self.wfs))]
         return Term([1], [{}], [sum(integral)])

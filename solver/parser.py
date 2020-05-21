@@ -174,13 +174,14 @@ class Parser(object):
                 if function.find('(') != -1:
                     function = function[0:function.find('(')]
                 args = line[line.find('(') + 1:line.find(')')].split(",")
-                print(line[line.find("fun")+4:line.find("bounds")])
                 weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
                     bounds = list(line[line.find("[") + 1:line.find("]")].split(","))
                     it = iter(bounds)
                     bounds = list(zip(it, it))
-                    const = line[line.find('const')+6:-2]
+                    const = 1
+                    if line.find('const') != -1:
+                        const = line[line.find('const')+6:-2]
                     weights.update({function: (weight, bounds, args, const)})
                 else:
                     weights.update({function: weight})

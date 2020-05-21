@@ -58,10 +58,10 @@ class ExistsNode(Node):
         if setsize is None:
             setsize = [maxSize, maxSize, maxSize]
 
-        result = Term(0)
+        result = Term([1], [{}], [0])
 
         for i in range(0, maxSize + 1):
-            coeff = Term(binomial(maxSize, i))
+            coeff = Term([1], [{}], [binomial(maxSize, i)])
             compute = self.left.compute(setsize=[i, setsize[0] - i, maxSize], removed=removed)
             result += coeff * compute
         return result
@@ -150,8 +150,8 @@ class ConstantNode(Node):
             result = self.left.compute(setsize=setsize)
 
         result = result.integrate()
-        return Term(Pow(result, exponent))
-
+        return Term([1], [{}], [result.cst[0]**exponent])
+    
     def maxDomainSize(self):
         domSize = 0
         without = None
@@ -180,6 +180,10 @@ class LeafNode(Node):
             result = Term(wfs, bounds, [const])
             return result
         else:
+            # print('kurwa', self.weight)
+            # if type(self.weight) is float:
+            #     return Term([sympify(1)], [{}], [self.weight])
+            # else:
             return Term([sympify(self.weight)], [{}], [1])
 
     def maxDomainSize(self):
