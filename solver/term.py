@@ -1,4 +1,3 @@
-import gmpy2
 from sympy import *
 import time
 
