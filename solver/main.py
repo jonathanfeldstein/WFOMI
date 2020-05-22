@@ -16,7 +16,6 @@ def main():
     partitionRoot, partitionNodes = parser.parseCircuit(partitionFile, weights, domains, algoType)
     queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains, algoType)
 
-<<<<<<< HEAD
     startTime = time.time()
     partitionFunc = partitionNodes[partitionRoot].compute().integrate()
     queryFunc = queryNodes[queryRoot].compute().integrate()
@@ -26,19 +25,7 @@ def main():
     result_time = endTime - startTime
     print(str(result_time) + ", ", end = '')
     # print(round(mean(time_100), 3))
-=======
-    time100 = []
-    for i in range(1):
-        startTime = time.time()
-        partitionFunc = partitionNodes[partitionRoot].compute().integrate()
-        queryFunc = queryNodes[queryRoot].compute().integrate()
-        queryProb = queryFunc.cst[0] / partitionFunc.cst[0]
-        endTime = time.time()
-        resultTime = endTime - startTime
-    time100.append(resultTime)
 
-    print(round(mean(time100), 3))
->>>>>>> 66aad460983e55dd4dce8e6442fda01a95874339
     print("partition function =", partitionFunc)
     print("the query =", queryFunc)
     print("P(query) =", queryProb)
