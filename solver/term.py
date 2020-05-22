@@ -3,8 +3,14 @@ import time
 
 def symbolic_to_numeric(wf, bounds):
     result = wf
-    for symbol in wf.free_symbols:
-        result = result.subs(symbol, bounds[symbol][1])-result.subs(symbol, bounds[symbol][0])
+    for arg, bound in bounds.items():
+        result = result.subs(arg, bound[1])-result.subs(arg, bound[0])
+    return result
+
+def integrate_from_dict(wf, bounds):
+    result = wf
+    for key, value in bounds.items():
+        result = wf.integrate([key, value[0], value[1]])
     return result
 
 class Term(object):
@@ -52,6 +58,7 @@ class Term(object):
         return "wfs: " + str(self.wfs) + " bounds: " + str(self.bounds) + "cst: " + str(self.cst)
 
     def integrate(self):
-        integrated = {wf: wf.integrate(*wf.free_symbols) if hasattr(wf, 'free_symbols') and (len(wf.free_symbols) != 0) else wf for wf in set(self.wfs)}
-        integral = [symbolic_to_numeric(integrated[self.wfs[i]], self.bounds[i])*self.cst[i] if hasattr(self.wfs[i], 'free_symbols') else self.wfs[i]*self.cst[i] for i in range(len(self.wfs))]
+        # integrated = {wf: wf.integrate(*wf.free_symbols) if hasattr(wf, 'free_symbols') and (len(wf.free_symbols) != 0) else wf for wf in set(self.wfs)}
+        # integral = [symbolic_to_numeric(integrated[self.wfs[i]], self.bounds[i])*self.cst[i] if hasattr(self.wfs[i], 'free_symbols') else self.wfs[i]*self.cst[i] for i in range(len(self.wfs))]
+        integral = [integrate_from_dict(self.wfs[i], self.bounds[i])*self.cst[i] if hasattr(self.wfs[i], 'free_symbols') else self.wfs[i]*self.cst[i] for i in range(len(self.wfs))]
         return Term([1], [{}], [sum(integral)])
