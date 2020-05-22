@@ -1,5 +1,5 @@
 person = {Alice, Bob, Charlie, Dave, Eve, Franz, Heinrich, Ike, Jesus}
-f_1: [0.001, 0.0001]
+f_1: [1, 0.1] const[1000]
 BMI(a,b)fun -0.001*(a+b-27)**2+0.3 bounds[10, 20, 35, 45] const[1]
 neg BMI(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45] const[1]
 diabetes(b)fun (b/10) - 1

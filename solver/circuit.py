@@ -172,18 +172,17 @@ class LeafNode(Node):
 
     def compute(self, setsize=None, removed=None):
         if type(self.weight) == tuple:
-            wfs = [sympify(self.weight[0])]
-            args = [sympify(arg) for arg in self.weight[2]]
-            const = int(self.weight[3])
-            bounds = [list(bound) for bound in self.weight[1]]
-            bounds = [dict(zip(args, bounds))]
-            result = Term(wfs, bounds, [const])
-            return result
+            if len(self.weight) > 2:
+                wfs = [sympify(self.weight[0])]
+                args = [sympify(arg) for arg in self.weight[2]]
+                const = int(self.weight[3])
+                bounds = [list(bound) for bound in self.weight[1]]
+                bounds = [dict(zip(args, bounds))]
+                result = Term(wfs, bounds, [const])
+                return result
+            else:
+                return Term([sympify(self.weight[0])], [{}], [self.weight[1]])
         else:
-            # print('kurwa', self.weight)
-            # if type(self.weight) is float:
-            #     return Term([sympify(1)], [{}], [self.weight])
-            # else:
             return Term([sympify(self.weight)], [{}], [1])
 
     def maxDomainSize(self):
