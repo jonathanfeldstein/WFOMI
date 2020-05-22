@@ -1,11 +1,12 @@
-from circuit import *
+# from circuit import *
+from circuit_efficient import *
 from sympy.parsing.sympy_parser import parse_expr
 import re
 
 
 class Parser(object):
     def parseCircuit(self, name, weights, domains, algoType):
-        print("parsing file:", name)
+        # print("parsing file:", name)
 
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
         nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
@@ -146,7 +147,7 @@ class Parser(object):
     # note that for complex weights the negation weight has to be specified seperately eg. 'neg bmi(x)fun x**2 + 10 bounds [10. 20]'
     # IMPORTANT - the name of the arguments of the weight functions must correspond to the argument names used in the circuit description 
     def parseWeights(self, name):
-        print("parsing file:", name)
+        # print("parsing file:", name)
 
         with open(name) as f:
             content = f.readlines()
