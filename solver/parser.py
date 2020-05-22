@@ -166,16 +166,19 @@ class Parser(object):
             elif line.find(":") != -1:
                 function = line[0:line.find(":")]
                 weight = line[line.find("[") + 1:line.find("]")].split(",")
-                weights.update({function: float(weight[0])})
-                weights.update({"neg " + function: float(weight[1])})
+                const = 1
+                if line.find('const') != -1:
+                    const = line[line.find('const')+6:-2]
+                weights.update({function: (float(weight[0]), const)})
+                weights.update({"neg " + function: (float(weight[1]), const)})
             # if line contains 'fun' it must be the complex weight line
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
                 if function.find('(') != -1:
                     function = function[0:function.find('(')]
                 args = line[line.find('(') + 1:line.find(')')].split(",")
-                weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                 if line.find("bounds") != -1:
+                    weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
                     bounds = list(line[line.find("[") + 1:line.find("]")].split(","))
                     it = iter(bounds)
                     bounds = list(zip(it, it))
@@ -184,6 +187,11 @@ class Parser(object):
                         const = line[line.find('const')+6:-2]
                     weights.update({function: (weight, bounds, args, const)})
                 else:
+                    if line.find('const') != -1:
+                        weight = parse_expr(line[line.find("fun")+4:line.find("const")])
+                        const = line[line.find('const')+6:-2]
+                    else:
+                        weight = parse_expr(line[line.find("fun")+4:])
                     weights.update({function: weight})
 
         return weights, domains
