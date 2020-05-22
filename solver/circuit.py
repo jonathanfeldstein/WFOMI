@@ -1,4 +1,5 @@
 from sympy import *
+from sympy.abc import *
 from term import *
 import numpy as np
 
@@ -38,7 +39,7 @@ class ForAllNode(Node):
 
         term = self.left.compute(setsize=setsize, removed=removed)
         result = term.integrate()
-        return Term(Pow(result, exponent))
+        return Term([1], [{}], [result.cst[0]**exponent])
 
     def maxDomainSize(self):
         domain, _, without = self.objects[self.var]
@@ -57,10 +58,10 @@ class ExistsNode(Node):
         if setsize is None:
             setsize = [maxSize, maxSize, maxSize]
 
-        result = Term(0)
+        result = Term([1], [{}], [0])
 
         for i in range(0, maxSize + 1):
-            coeff = Term(binomial(maxSize, i))
+            coeff = Term([1], [{}], [binomial(maxSize, i)])
             compute = self.left.compute(setsize=[i, setsize[0] - i, maxSize], removed=removed)
             result += coeff * compute
         return result
@@ -149,7 +150,7 @@ class ConstantNode(Node):
             result = self.left.compute(setsize=setsize)
 
         result = result.integrate()
-        return Term(Pow(result, exponent))
+        return Term([1], [{}], [result.cst[0]**exponent])
     
     def maxDomainSize(self):
         domSize = 0
@@ -171,9 +172,18 @@ class LeafNode(Node):
 
     def compute(self, setsize=None, removed=None):
         if type(self.weight) == tuple:
-            return Term(self.weight[0], self.weight[2], (int(self.weight[1][0]), int(self.weight[1][1])))
+            if len(self.weight) > 2:
+                wfs = [sympify(self.weight[0])]
+                args = [sympify(arg) for arg in self.weight[2]]
+                const = int(self.weight[3])
+                bounds = [list(bound) for bound in self.weight[1]]
+                bounds = [dict(zip(args, bounds))]
+                result = Term(wfs, bounds, [const])
+                return result
+            else:
+                return Term([sympify(self.weight[0])], [{}], [self.weight[1]])
         else:
-            return Term(self.weight, ())
+            return Term([sympify(self.weight)], [{}], [1])
 
     def maxDomainSize(self):
         return 0
@@ -190,3 +200,5 @@ def CreateNewNode(data=None, var=None, objects=None, weights=None, algoType=None
         return ExistsNode(var, objects)
     else:
         return LeafNode(data, weights, algoType)
+
+ 
