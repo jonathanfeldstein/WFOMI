@@ -169,8 +169,8 @@ class Parser(object):
                 const = [1, 1]
                 if line.find('const') != -1:
                     const = line[line.find('const')+6:-2].split(",")
-                weights.update({function: (float(weight[0]), const[0])})
-                weights.update({"neg " + function: (float(weight[1]), const[1])})
+                weights.update({function: (float(weight[0]), float(const[0]))})
+                weights.update({"neg " + function: (float(weight[1]), float(const[1]))})
             # if line contains 'fun' it must be the complex weight line
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
