@@ -125,7 +125,6 @@ class Parser(object):
                         nodes.update({leftName: leftNode})
                         nodes.update({node: mainNode})
                         connections.append((node, leftName))
-
                 else:
                     var = None
                     objects = None
@@ -143,8 +142,8 @@ class Parser(object):
     # In the weights file there can be 3 types of lines:
     # the domain line eg. 'person = {Alice}'
     # the simple weight line eg. 'pre: [1, 10]', meaning the predicate pre is assigned weight 1 and its negation is assigned weight 10
-    # the complex weight line eg. 'bmi(x)fun x**2 + 10 bounds [5, 10]'
-    # note that for complex weights the negation weight has to be specified seperately eg. 'neg bmi(x)fun x**2 + 10 bounds [10. 20]'
+    # the complex weight line eg. 'bmi(x)fun x**2 + 10 bounds[5, 10]'
+    # note that for complex weights the negation weight has to be specified seperately eg. 'neg bmi(x)fun x**2 + 10 bounds[10, 20]'
     # IMPORTANT - the name of the arguments of the weight functions must correspond to the argument names used in the circuit description 
     def parseWeights(self, name):
         # print("parsing file:", name)
@@ -167,11 +166,11 @@ class Parser(object):
             elif line.find(":") != -1:
                 function = line[0:line.find(":")]
                 weight = line[line.find("[") + 1:line.find("]")].split(",")
-                const = 1
+                const = [1, 1]
                 if line.find('const') != -1:
-                    const = line[line.find('const')+6:-2]
-                weights.update({function: (float(weight[0]), const)})
-                weights.update({"neg " + function: (float(weight[1]), const)})
+                    const = line[line.find('const')+6:-2].split(",")
+                weights.update({function: (float(weight[0]), const[0])})
+                weights.update({"neg " + function: (float(weight[1]), const[1])})
             # if line contains 'fun' it must be the complex weight line
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
