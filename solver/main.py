@@ -1,5 +1,5 @@
 from parser import *
-from circuit_efficient import *
+from circuit import *
 import time
 import sys
 from statistics import mean
@@ -16,17 +16,17 @@ def main():
     partitionRoot, partitionNodes = parser.parseCircuit(partitionFile, weights, domains, algoType)
     queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains, algoType)
 
-    time_100 = []
+    time100 = []
     for i in range(1):
         startTime = time.time()
         partitionFunc = partitionNodes[partitionRoot].compute().integrate()
         queryFunc = queryNodes[queryRoot].compute().integrate()
         queryProb = queryFunc.cst[0] / partitionFunc.cst[0]
         endTime = time.time()
-        result_time = endTime - startTime
-    time_100.append(result_time)
+        resultTime = endTime - startTime
+    time100.append(resultTime)
 
-    print(round(mean(time_100), 3))
+    print(round(mean(time100), 3))
     print("partition function =", partitionFunc)
     print("the query =", queryFunc)
     print("P(query) =", queryProb)
