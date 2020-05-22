@@ -1,5 +1,5 @@
 # from circuit import *
-from circuit_efficient import *
+from circuit import *
 from sympy.parsing.sympy_parser import parse_expr
 import re
 
