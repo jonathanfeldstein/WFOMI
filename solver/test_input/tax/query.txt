@@ -1,5 +1,5 @@
   n242 and
-  n0  tax(Guy)
+  n0 tax(Guy)
   n241 or
   n114 and
   n1 or  
@@ -18,13 +18,13 @@
   n101 and
   n5  C{X,Y}{person-bot/Guy, person-top/Guy} commonincome(X,Y) or neg commonincome(X,Y)
   n100 and
-  n6  C{X,Y}{person-top/Guy, person-bot/Guy} commonincome(X,Y) or neg commonincome(X,Y)
+  n6 C{X,Y}{person-top/Guy, person-bot/Guy} commonincome(X,Y) or neg commonincome(X,Y)
   n99 and
-  n7  C{X}{person-bot/Guy} commonincome(X,Guy) or neg commonincome(X,Guy)
+  n7 C{X}{person-bot/Guy} commonincome(X,Guy) or neg commonincome(X,Guy)
   n98 and
-  n8  C{X}{person-top} tax(X)
+  n8 C{X}{person-top/Guy} tax(X)
   n97 and
-  n9  C{X}{person-bot} neg tax(X)
+  n9  C{X}{person-bot/Guy} neg tax(X)
   n96 and
   n57 A{x}{person-top/Guy}
   n56 or
@@ -37,106 +37,106 @@
   n11 -> n112222222
   n11 -> n113333333
   n26 and
-  n12  single(x)
+  n12 single(x)
   n25 and
   n13 C{X}{person-bot/Guy} f_2(x,X)
   n24 and
   n14 C{X}{person-top/Guy} f_2(x,X)
   n23 and
-  n15  f_2(x,Guy)
+  n15 f_2(x,Guy)
   n22 or
   n18 and
-  n16  f_1(x)
-  n17  income(x)
+  n16 f_1(x)
+  n17 income(x)
   n21 and
-  n19  neg f_1(x)
-  n20  neg income(x)
+  n19 neg f_1(x)
+  n20 neg income(x)
   n55 and
-  n29  or 
+  n29 or 
   n29000000 income(x)
   n29111111 neg income(x)
   n29 -> n29000000
   n29 -> n29111111
   n54 and
-  n30  neg single(x)
+  n30 neg single(x)
   n53 and
-  n31  f_1(x)
+  n31 f_1(x)
   n52 and
   n32 C{X}{person-bot/Guy} neg f_2(x,X)
   n51 and
   n42 A{y}{person-top/Guy}
   n41 or
   n37 and
-  n33  f_2(x,y)
-  n34  commonincome(x,y)
+  n33 f_2(x,y)
+  n34 commonincome(x,y)
   n40 and
-  n38  neg f_2(x,y)
-  n39  neg commonincome(x,y)
+  n38 neg f_2(x,y)
+  n39 neg commonincome(x,y)
   n50 or
   n46 and
-  n43  f_2(x,Guy)
-  n44  commonincome(x,Guy)
+  n43 f_2(x,Guy)
+  n44 commonincome(x,Guy)
   n49 and
-  n47  neg f_2(x,Guy)
-  n48  neg commonincome(x,Guy)
+  n47 neg f_2(x,Guy)
+  n48 neg commonincome(x,Guy)
   n95 A{x}{person-bot/Guy}
   n94 or
   n74 and
   n58 C{X}{person-bot/Guy} commonincome(x,X) or neg commonincome(x,X)
   n73 and
-  n59  single(x)
+  n59 single(x)
   n72 and
   n60 C{X}{person-bot/Guy} f_2(x,X)
   n71 and
   n61 C{X}{person-top/Guy} f_2(x,X)
   n70 and
-  n62  f_2(x,Guy)
+  n62 f_2(x,Guy)
   n69 or
   n65 and
-  n63  f_1(x)
-  n64  neg income(x)
+  n63 f_1(x)
+  n64 neg income(x)
   n68 and
-  n66  neg f_1(x)
-  n67  income(x)
+  n66 neg f_1(x)
+  n67 income(x)
   n93 and
-  n75  or 
+  n75 or 
   n750000000 income(x) 
   n751111111 neg income(x)
   n75 -> n750000000
   n75 -> n751111111
   n92 and
-  n76  neg single(x)
+  n76 neg single(x)
   n91 and
-  n77  f_1(x)
+  n77 f_1(x)
   n90 and
   n78 C{X}{person-top/Guy} neg f_2(x,X)
   n89 and
-  n79  neg f_2(x,Guy)
+  n79 neg f_2(x,Guy)
   n88 A{y}{person-bot/Guy}
   n87 or
   n83 and
-  n80  f_2(x,y)
-  n81  neg commonincome(x,y)
+  n80 f_2(x,y)
+  n81 neg commonincome(x,y)
   n86 and
-  n84  neg f_2(x,y)
-  n85  commonincome(x,y)
+  n84 neg f_2(x,y)
+  n85 commonincome(x,y)
   n109 or
   n105 and
-  n103  f_1(Guy)
-  n104  income(Guy)
+  n103 f_1(Guy)
+  n104 income(Guy)
   n108 and
-  n106  neg f_1(Guy)
-  n107  neg income(Guy)
+  n106 neg f_1(Guy)
+  n107 neg income(Guy)
   n240 and
-  n115  or 
+  n115 or 
   n11511111111 income(Guy)
   n11500000000 neg income(Guy)
   n115 -> n11511111111
   n115 -> n11500000000
   n239 and
-  n116  neg single(Guy)
+  n116 neg single(Guy)
   n238 and
-  n117  f_1(Guy)
+  n117 f_1(Guy)
   n237 and
   n228 E{x}{person}
   n227 and
@@ -166,63 +166,67 @@
   n142 and
   n126 C{X}{person-top/Guy} commonincome(x,X) or neg commonincome(x,X)
   n141 and
-  n127  single(x)
+  n127 single(x)
   n140 and
-  n128  f_2(x,Guy)
+  n128 f_2(x,Guy)
   n139 and
   n129 C{X}{person-top/Guy} f_2(x,X)
   n138 and
   n130 C{X}{person-bot/Guy} f_2(x,X)
   n137 or
   n133 and
-  n131  f_1(x)
-  n132  income(x)
+  n131 f_1(x)
+  n132 income(x)
   n136 and
-  n134  neg f_1(x)
-  n135  neg income(x)
+  n134 neg f_1(x)
+  n135 neg income(x)
   n169 and
-  n144  income(x) or neg income(x)
+  n144 or 
+  n14400 income(x) 
+  n14411 neg income(x)
+  n144 -> n14400
+  n144 -> n14411
   n168 and
-  n145  neg single(x)
+  n145 neg single(x)
   n167 and
-  n146  f_1(x)
+  n146 f_1(x)
   n166 and
   n147 C{X}{person-bot/Guy} neg f_2(x,X)
   n165 and
   n155 or
   n151 and
-  n148  f_2(x,Guy)
-  n149  commonincome(x,Guy)
+  n148 f_2(x,Guy)
+  n149 commonincome(x,Guy)
   n154 and
-  n152  neg f_2(x,Guy)
-  n153  neg commonincome(x,Guy)
+  n152 neg f_2(x,Guy)
+  n153 neg commonincome(x,Guy)
   n164 A{y}{person-top/Guy}
   n163 or
   n159 and
-  n156  f_2(x,y)
-  n157  commonincome(x,y)
+  n156 f_2(x,y)
+  n157 commonincome(x,y)
   n162 and
-  n160  neg f_2(x,y)
-  n161  neg commonincome(x,y)
+  n160 neg f_2(x,y)
+  n161 neg commonincome(x,y)
   n209 A{x}{person-bot/Guy}
   n208 or
   n188 and
   n172 C{X}{person-bot/Guy} commonincome(x,X) or neg commonincome(x,X)
   n187 and
-  n173  single(x)
+  n173 single(x)
   n186 and
-  n174  f_2(x,Guy)
+  n174 f_2(x,Guy)
   n185 and
   n175 C{X}{person-top/Guy} f_2(x,X)
   n184 and
   n176 C{X}{person-bot/Guy} f_2(x,X)
   n183 or
   n179 and
-  n177  f_1(x)
-  n178  neg income(x)
+  n177 f_1(x)
+  n178 neg income(x)
   n182 and
-  n180  neg f_1(x)
-  n181  income(x)
+  n180 neg f_1(x)
+  n181 income(x)
   n207 and
   n189 or 
   n1891111111 income(x) 
@@ -230,36 +234,36 @@
   n189 -> n1891111111
   n189 -> n1890000000
   n206 and
-  n190  neg single(x)
+  n190 neg single(x)
   n205 and
-  n191  f_1(x)
+  n191 f_1(x)
   n204 and
   n192 C{X}{person-top/Guy} neg f_2(x,X)
   n203 and
-  n193  neg f_2(x,Guy)
+  n193 neg f_2(x,Guy)
   n202 A{y}{person-bot/Guy}
   n201 or
   n197 and
-  n194  f_2(x,y)
-  n195  neg commonincome(x,y)
+  n194 f_2(x,y)
+  n195 neg commonincome(x,y)
   n200 and
-  n198  neg f_2(x,y)
-  n199  commonincome(x,y)
+  n198 neg f_2(x,y)
+  n199 commonincome(x,y)
   n219 A{x}{person-top/Guy}
   n218 or
   n213 and
-  n211  commonincome(Guy,x)
-  n212  f_2(Guy,x)
+  n211 commonincome(Guy,x)
+  n212 f_2(Guy,x)
   n217 and
-  n214  neg commonincome(Guy,x)
-  n215  neg f_2(Guy,x)
+  n214 neg commonincome(Guy,x)
+  n215 neg f_2(Guy,x)
   n236 or
   n232 and
-  n229  f_2(Guy,Guy)
-  n230  commonincome(Guy,Guy)
+  n229 f_2(Guy,Guy)
+  n230 commonincome(Guy,Guy)
   n235 and
-  n233  neg f_2(Guy,Guy)
-  n234  neg commonincome(Guy,Guy)
+  n233 neg f_2(Guy,Guy)
+  n234 neg commonincome(Guy,Guy)
   n242 -> n0;
   n242 -> n241;
   n241 -> n114;
