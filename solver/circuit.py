@@ -108,6 +108,7 @@ class ConstantNode(Node):
         self.varList = varList
         self.nodeName = nodeName
         self.objects = objects
+        self.shouldIntegrate = True
 
     def compute(self, setsize=None, removed=None):
         if setsize is None:
@@ -149,8 +150,11 @@ class ConstantNode(Node):
         else:
             result = self.left.compute(setsize=setsize)
 
-        result = result.integrate()
-        return Term([1], [{}], [result.cst[0]**exponent])
+        if self.shouldIntegrate:
+            result = result.integrate()
+            return Term([1], [{}], [result.cst[0]**exponent])
+        else:
+            return result
     
     def maxDomainSize(self):
         domSize = 0
