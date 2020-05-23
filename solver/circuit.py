@@ -154,7 +154,7 @@ class ConstantNode(Node):
             result = result.integrate()
             return Term([1], [{}], [result.cst[0]**exponent])
         else:
-            return sresult
+            return result
     
     def maxDomainSize(self):
         domSize = 0

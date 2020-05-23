@@ -173,18 +173,31 @@ class Parser(object):
                             forAllChild = connections[currentNode]
                             constParent = reverseConnections[constNode]
                             constGrandParent = reverseConnections[constParent]
-                            parentSibling = list(set(connections[constGrandParent]) - set([constParent]))[0]
-                            constSibling = list(set(connections[constParent]) - set([constNode]))[0]
-                            
+
+                            parentSibling = None
+                            if connections[constGrandParent] != constParent:
+                                parentSibling = (set(connections[constGrandParent]) - set([constParent])).pop()
+                            constSibling = None
+                            if connections[constParent] != constNode:
+                                constSibling = (set(connections[constParent]) - set([constNode])).pop()
+
                             connections.update({currentNode: constParent})
                             connections.update({constParent: (constNode, forAllChild)})
-                            connections.update({constGrandParent: (parentSibling, constSibling)})
+                            if parentSibling is not None and constSibling is not None:
+                                connections.update({constGrandParent: (parentSibling, constSibling)})
+                                reverseConnections.update({parentSibling: constGrandParent})
+                                reverseConnections.update({constSibling: constGrandParent})
+                            elif parentSibling is None:
+                                connections.update({constGrandParent: constSibling})
+                                reverseConnections.update({constSibling: constGrandParent})
+                            elif constSibling is None:
+                                connections.update({constGrandParent: parentSibling})
+                                reverseConnections.update({parentSibling: constGrandParent})
 
                             reverseConnections.update({constParent: currentNode})
                             reverseConnections.update({constNode: constParent})
                             reverseConnections.update({forAllChild: constParent})
-                            reverseConnections.update({parentSibling: constGrandParent})
-                            reverseConnections.update({constSibling: constGrandParent})
+
                             
                             nodes[constNode].shouldIntegrate = False
 
