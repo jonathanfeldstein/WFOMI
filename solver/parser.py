@@ -6,7 +6,7 @@ import re
 
 class Parser(object):
     def parseCircuit(self, name, weights, domains, algoType):
-        # print("parsing file:", name)
+        print("parsing file:", name)
 
         nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
         nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
@@ -141,7 +141,6 @@ class Parser(object):
                         nodes.update({node: mainNode})
                         connections.update({node: leftName})
 
-                     
                     if len(varSet) == 1 and len(weights.get(leftData)) > 3:
                         constCorrection.append([doms[0], node])
 
@@ -155,9 +154,10 @@ class Parser(object):
                     nodes.update({node: newNode})
 
         for constDom, constNode in constCorrection:
-            nextForAllObject, nextForAllNode = nextForAll(reverseConnections[constNode], connections, nodes)
+            nextForAllNode = nextForAll(reverseConnections[constNode], connections, nodes)
             if nextForAllNode is not None:
-                if constDom == nextForAllObject.objects[nextForAllNode.var][3]:
+                if constDom == nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3]:
+                    print(nextForAllNode, constNode, constDom, nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3])
                     forAllChild = connections[nextForAllNode]
                     constParent = reverseConnections[constNode]
                     constGrandParent = reverseConnections[constParent]
@@ -273,7 +273,7 @@ def ancestorIsForAll(node, parentList, nodesList):
 
 def nextForAll(node, connectionList, nodesList):
     if type(nodesList[node]) is ForAllNode:
-        return node, nodesList[node]
+        return node
     elif type(nodesList[node]) is not ConstantNode:
         if node in connectionList and type(connectionList[node]) is tuple:
             result0 = nextForAll(connectionList[node][0], connectionList, nodesList)
@@ -284,5 +284,3 @@ def nextForAll(node, connectionList, nodesList):
                 return result0
         elif node in connectionList:
             return nextForAll(connectionList[node], connectionList, nodesList)
-    else:
-        return None, None
