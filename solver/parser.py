@@ -141,6 +141,7 @@ class Parser(object):
                         nodes.update({node: mainNode})
                         connections.update({node: leftName})
 
+                     # 
                     if len(varSet) == 1 and len(weights.get(leftData)) > 3:
                         constCorrection.append([doms[0], node])
 
@@ -154,44 +155,42 @@ class Parser(object):
                     nodes.update({node: newNode})
 
         for constDom, constNode in constCorrection:
-            nextForAllNode = nextForAll(reverseConnections[constNode], connections, nodes)
-            if nextForAllNode is not None:
-                if constDom == nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3]:
-                    print(nextForAllNode, constNode, constDom, nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3])
-                    forAllChild = connections[nextForAllNode]
-                    constParent = reverseConnections[constNode]
-                    constGrandParent = reverseConnections[constParent]
+            nextForAllNode = nextMatchingForAll(reverseConnections[constNode], constDom, connections, nodes)
+            if nextForAllNode is not None and not ancestorIsForAll(nextForAllNode, reverseConnections, nodes):
+                # print(nextForAllNode, constNode, constDom, nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3])
+                forAllChild = connections[nextForAllNode]
+                constParent = reverseConnections[constNode]
+                constGrandParent = reverseConnections[constParent]
                     
-                    parentSibling = None
-                    if connections[constGrandParent] != constParent:
-                        parentSibling = (set(connections[constGrandParent]) - set([constParent])).pop()
-                        constSibling = None
-                    if connections[constParent] != constNode:
-                        constSibling = (set(connections[constParent]) - set([constNode])).pop()
+                parentSibling = None
+                if connections[constGrandParent] != constParent:
+                    parentSibling = (set(connections[constGrandParent]) - set([constParent])).pop()
+                    constSibling = None
+                if connections[constParent] != constNode:
+                    constSibling = (set(connections[constParent]) - set([constNode])).pop()
                         
-                    connections.update({nextForAllNode: constParent})
-                    connections.update({constParent: (constNode, forAllChild)})
-                    if parentSibling is not None and constSibling is not None:
-                        connections.update({constGrandParent: (parentSibling, constSibling)})
-                        reverseConnections.update({parentSibling: constGrandParent})
-                        reverseConnections.update({constSibling: constGrandParent})
-                    elif parentSibling is None:
-                        connections.update({constGrandParent: constSibling})
-                        reverseConnections.update({constSibling: constGrandParent})
-                    elif constSibling is None:
-                        connections.update({constGrandParent: parentSibling})
-                        reverseConnections.update({parentSibling: constGrandParent})
+                connections.update({nextForAllNode: constParent})
+                connections.update({constParent: (constNode, forAllChild)})
+                if parentSibling is not None and constSibling is not None:
+                    connections.update({constGrandParent: (parentSibling, constSibling)})
+                    reverseConnections.update({parentSibling: constGrandParent})
+                    reverseConnections.update({constSibling: constGrandParent})
+                elif parentSibling is None:
+                    connections.update({constGrandParent: constSibling})
+                    reverseConnections.update({constSibling: constGrandParent})
+                elif constSibling is None:
+                    connections.update({constGrandParent: parentSibling})
+                    reverseConnections.update({parentSibling: constGrandParent})
                         
-                        reverseConnections.update({constParent: nextForAllNode})
-                        reverseConnections.update({constNode: constParent})
-                        reverseConnections.update({forAllChild: constParent})
-                            
-                        nodes[constNode].shouldIntegrate = False
+                    reverseConnections.update({constParent: nextForAllNode})
+                    reverseConnections.update({constNode: constParent})
+                    reverseConnections.update({forAllChild: constParent})
+                    
+                nodes[constNode].shouldIntegrate = False
 
         root = nodeNumPattern.match(content[0]).group().strip()
         nodes = self.connectNodes(nodes, connections)
 
-        
         return root, nodes
 
     # parse weights file.
@@ -271,16 +270,16 @@ def ancestorIsForAll(node, parentList, nodesList):
         return ancestorIsForAll(parentList[node], parentList, nodesList)
 
 
-def nextForAll(node, connectionList, nodesList):
-    if type(nodesList[node]) is ForAllNode:
+def nextMatchingForAll(node, domain, connectionList, nodesList):
+    if type(nodesList[node]) is ForAllNode and nodesList[node].objects[nodesList[node].var][3] == domain:
         return node
     elif type(nodesList[node]) is not ConstantNode:
         if node in connectionList and type(connectionList[node]) is tuple:
-            result0 = nextForAll(connectionList[node][0], connectionList, nodesList)
-            result1 = nextForAll(connectionList[node][1], connectionList, nodesList)
+            result0 = nextMatchingForAll(connectionList[node][0], domain, connectionList, nodesList)
+            result1 = nextMatchingForAll(connectionList[node][1], domain, connectionList, nodesList)
             if result0 is None:
                 return result1
             else:
                 return result0
         elif node in connectionList:
-            return nextForAll(connectionList[node], connectionList, nodesList)
+            return nextMatchingForAll(connectionList[node], domain, connectionList, nodesList)
