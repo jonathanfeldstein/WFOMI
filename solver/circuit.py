@@ -24,7 +24,7 @@ class ForAllNode(Node):
         self.objects = objects
 
     def compute(self, setsize=None, removed=None):
-        domain, domType, without = self.objects[self.var]
+        domain, domType, without, _ = self.objects[self.var]
         domain = list(set(domain) - set(without))
 
         if setsize is None:
@@ -42,7 +42,7 @@ class ForAllNode(Node):
         return Term([1], [{}], [result.cst[0]**exponent])
 
     def maxDomainSize(self):
-        domain, _, without = self.objects[self.var]
+        domain, _, without, _ = self.objects[self.var]
         return len(list(set(domain) - set(without))), without
 
 

@@ -53,10 +53,10 @@ class Parser(object):
                     varSet = line[line.find("{") + 1:line.find("}")].split(",")
                     without = []
 
-                    dom = line[line.find("}") + 2:-2]
+                    domainFull = line[line.find("}") + 2:-2]
                     
-                    if len(dom.split("/")) > 1:
-                        domainSet, without = dom.split("/")
+                    if len(domainFull.split("/")) > 1:
+                        domainSet, without = domainFull.split("/")
                         domainSet, without = domainSet.split(","), without.split(",")
                     else:
                         domainSet = line[line.find("}") + 2:-2].split(",")
@@ -67,8 +67,9 @@ class Parser(object):
                         domainSet = [domainSet]
 
                     objects = {}
+
                     for dom, var in zip(domainSet, varSet):
-                        objects.update({var: (domains[dom], domainType, without)})
+                        objects.update({var: (domains[dom], domainType, without, domainFull)})
 
                 # parse the constant node and add it to the list of nodes.
                 elif data == 'C':
@@ -140,6 +141,7 @@ class Parser(object):
                         nodes.update({node: mainNode})
                         connections.update({node: leftName})
 
+                     
                     if len(varSet) == 1 and len(weights.get(leftData)) > 3:
                         constCorrection.append([doms[0], node])
 
@@ -152,54 +154,39 @@ class Parser(object):
                     newNode = CreateNewNode(data, var, objects, weights, algoType)
                     nodes.update({node: newNode})
 
-        for line in content:
-            matchLink = linkPattern.match(line)
-            matchNum = nodeNumPattern.match(line)
-            
-            if matchLink is None:
-                matchData = nodeDataPattern.match(line[matchNum.end():])
-                currentNode = matchNum.group().strip()
-                data = matchData.group().strip()
-                if data.find("(") != -1:
-                    data = data[0:data.find("(")]
-
-                #check if current node is a for all node
-                if data == 'A':
-                    #check if ancestor node is not a for all node
-                    if ancestorIsForAll(currentNode, reverseConnections, nodes) is None:
-                        dom = line[line.find("}") + 2:-2]
-                        constNodes = [match[1] for match in constCorrection if match[0] == dom]
-                        for constNode in constNodes:
-                            forAllChild = connections[currentNode]
-                            constParent = reverseConnections[constNode]
-                            constGrandParent = reverseConnections[constParent]
-
-                            parentSibling = None
-                            if connections[constGrandParent] != constParent:
-                                parentSibling = (set(connections[constGrandParent]) - set([constParent])).pop()
-                            constSibling = None
-                            if connections[constParent] != constNode:
-                                constSibling = (set(connections[constParent]) - set([constNode])).pop()
-
-                            connections.update({currentNode: constParent})
-                            connections.update({constParent: (constNode, forAllChild)})
-                            if parentSibling is not None and constSibling is not None:
-                                connections.update({constGrandParent: (parentSibling, constSibling)})
-                                reverseConnections.update({parentSibling: constGrandParent})
-                                reverseConnections.update({constSibling: constGrandParent})
-                            elif parentSibling is None:
-                                connections.update({constGrandParent: constSibling})
-                                reverseConnections.update({constSibling: constGrandParent})
-                            elif constSibling is None:
-                                connections.update({constGrandParent: parentSibling})
-                                reverseConnections.update({parentSibling: constGrandParent})
-
-                            reverseConnections.update({constParent: currentNode})
-                            reverseConnections.update({constNode: constParent})
-                            reverseConnections.update({forAllChild: constParent})
-
+        for constDom, constNode in constCorrection:
+            nextForAllObject, nextForAllNode = nextForAll(reverseConnections[constNode], connections, nodes)
+            if nextForAllNode is not None:
+                if constDom == nextForAllObject.objects[nextForAllNode.var][3]:
+                    forAllChild = connections[nextForAllNode]
+                    constParent = reverseConnections[constNode]
+                    constGrandParent = reverseConnections[constParent]
+                    
+                    parentSibling = None
+                    if connections[constGrandParent] != constParent:
+                        parentSibling = (set(connections[constGrandParent]) - set([constParent])).pop()
+                        constSibling = None
+                    if connections[constParent] != constNode:
+                        constSibling = (set(connections[constParent]) - set([constNode])).pop()
+                        
+                    connections.update({nextForAllNode: constParent})
+                    connections.update({constParent: (constNode, forAllChild)})
+                    if parentSibling is not None and constSibling is not None:
+                        connections.update({constGrandParent: (parentSibling, constSibling)})
+                        reverseConnections.update({parentSibling: constGrandParent})
+                        reverseConnections.update({constSibling: constGrandParent})
+                    elif parentSibling is None:
+                        connections.update({constGrandParent: constSibling})
+                        reverseConnections.update({constSibling: constGrandParent})
+                    elif constSibling is None:
+                        connections.update({constGrandParent: parentSibling})
+                        reverseConnections.update({parentSibling: constGrandParent})
+                        
+                        reverseConnections.update({constParent: nextForAllNode})
+                        reverseConnections.update({constNode: constParent})
+                        reverseConnections.update({forAllChild: constParent})
                             
-                            nodes[constNode].shouldIntegrate = False
+                        nodes[constNode].shouldIntegrate = False
 
         root = nodeNumPattern.match(content[0]).group().strip()
         nodes = self.connectNodes(nodes, connections)
@@ -282,3 +269,20 @@ def ancestorIsForAll(node, parentList, nodesList):
         return parentList[node]
     else:
         return ancestorIsForAll(parentList[node], parentList, nodesList)
+
+
+def nextForAll(node, connectionList, nodesList):
+    if type(nodesList[node]) is ForAllNode:
+        return node, nodesList[node]
+    elif type(nodesList[node]) is not ConstantNode:
+        if node in connectionList and type(connectionList[node]) is tuple:
+            result0 = nextForAll(connectionList[node][0], connectionList, nodesList)
+            result1 = nextForAll(connectionList[node][1], connectionList, nodesList)
+            if result0 is None:
+                return result1
+            else:
+                return result0
+        elif node in connectionList:
+            return nextForAll(connectionList[node], connectionList, nodesList)
+    else:
+        return None, None
