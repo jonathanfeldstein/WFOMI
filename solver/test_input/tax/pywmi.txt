@@ -1,0 +1,21 @@
+((f0 & (((d0 | ~d0) & ~(b0 <= 35)) | ((b0 <= 35) & (~d0)))) | (~f0 & (d0 & (b0 <= 35)))) & (
+                (f1 & (((d1 | ~d1) & ~(b1 <= 35)) | ((b1 <= 35) & (~d1)))) | (
+                    ~f1 & (d1 & (b1 <= 35))))
+
+single s0, s1
+tax t0, t1
+income i0, i1
+commonincome c0, c1
+f_1 fa0, fa1
+f_2 fb0, fb1
+
+
+Exists
+(c | ~c) & (c | ~c) & t & ~t & 
+(Forall ((c | ~c) & s & fb & fb & ((fa & i) | (~fa & ~i))) |
+	(i | ~i) & ~s & fa & ~fb &
+	Forall (fb & c) | (~fb & ~c))
+&
+(Forall ((c | ~c) & s & fb & fb & ((fa & ~i) | (~fa & i)) | ((i | ~i) & ~s & fa & ~fb &
+         Forall ((fb & ~c) | (~fb & c)))
+)

@@ -1,17 +1,16 @@
-# from circuit import *
 from circuit import *
 from sympy.parsing.sympy_parser import parse_expr
 import re
 
 
 class Parser(object):
-    def parseCircuit(self, name, weights, domains, algoType):
+    def __init__(self):
+        self.nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
+        self.nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
+        self.linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
+        
+    def parseCircuit(self, name, weights, domains):
         print("parsing file:", name)
-
-        nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
-        nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
-
-        linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
 
         with open(name) as f:
             content = f.readlines()
@@ -20,15 +19,25 @@ class Parser(object):
         connections = {}
         reverseConnections = {}
         nodes = {}
-        maxDomainSize = 0
 
+        self.parseConnections(content, connections, reverseConnections)
+        self.parseNodes(content, constCorrection, connections, reverseConnections, nodes, weights, domains)
+        self.adjustConstNodes(constCorrection, connections, reverseConnections, nodes)
+          
+        root = self.nodeNumPattern.match(content[0]).group().strip()
+        nodes = self.connectNodes(nodes, connections)
+
+        return root, nodes
+
+
+    def parseConnections(self, content, connections, reverseConnections):
         for line in content:
-            matchLink = linkPattern.match(line)
-            matchNum = nodeNumPattern.match(line)
+            matchLink = self.linkPattern.match(line)
+            matchNum = self.nodeNumPattern.match(line)
 
             # parse the connection line like 'n0 -> n1' else parse the node line
             if matchLink is not None:
-                matchData = nodeDataPattern.match(line[matchNum.end() + 3:])  # +3 for the _->, space+arrow
+                matchData = self.nodeDataPattern.match(line[matchNum.end() + 3:])  # +3 for the _->, space+arrow
                 node1 = matchNum.group().strip()
                 node2 = matchData.group().strip()
                 if node1 not in connections:
@@ -37,126 +46,121 @@ class Parser(object):
                     connections[node1] = (connections[node1], node2)
                 reverseConnections[node2] = node1
 
+    def parseNodes(self, content, constCorrection, connections, reverseConnections, nodes, weights, domains):
         for line in content:
-            matchLink = linkPattern.match(line)
-            matchNum = nodeNumPattern.match(line)
+            matchLink = self.linkPattern.match(line)
+            matchNum = self.nodeNumPattern.match(line)
             
             if matchLink is None:
-                matchData = nodeDataPattern.match(line[matchNum.end():])
+                matchData = self.nodeDataPattern.match(line[matchNum.end():])
                 node = matchNum.group().strip()
                 data = matchData.group().strip()
                 if data.find("(") != -1:
                     data = data[0:data.find("(")]
 
-                # parse the existential or univesal node
-                if data == 'A' or data == 'E':
-                    varSet = line[line.find("{") + 1:line.find("}")].split(",")
-                    without = []
-
-                    domainFull = line[line.find("}") + 2:-2]
-                    
-                    if len(domainFull.split("/")) > 1:
-                        domainSet, without = domainFull.split("/")
-                        domainSet, without = domainSet.split(","), without.split(",")
-                    else:
-                        domainSet = line[line.find("}") + 2:-2].split(",")
-
-                    domainType = ""
-                    if len(domainSet[0].split("-")) > 1:
-                        domainSet, domainType = domainSet[0].split("-")
-                        domainSet = [domainSet]
-
-                    objects = {}
-
-                    for dom, var in zip(domainSet, varSet):
-                        objects.update({var: (domains[dom], domainType, without, domainFull)})
-
-                # parse the constant node and add it to the list of nodes.
-                elif data == 'C':
-                    varSet = line[line.find("{") + 1:line.find("}")].split(",")
-                    line = line[line.find("}") + 2:]
-
-                    doms = line[0:line.find("}")].split(",")
-                    objects = {}
-                    without = []
-                    domainSet = []
-                    domainTypeSet = []
-                    withoutSet = []
-                    
-                    for dom in doms:
-                        if len(dom.split("/")) > 1:
-                            domainType, without = dom.split("/")
-                            without = without.split("+")
-                            withoutSet.append(without)
-                            if len(domainType.split("-")) > 1:
-                                d, domainType = domainType.split("-")
-                                domainSet.append(d)
-                            else:
-                                domainSet.append(domainType)
-                            domainTypeSet.append(domainType)
-                        else:
-                            if len(dom.split("-")) > 1:
-                                d, domainType = dom.split("-")
-                                domainSet.append(d)
-                                domainTypeSet.append(domainType)
-                            else:
-                                d = dom.split(",")
-                                domainSet.append(d[0])
-                                domainTypeSet.append("")
-                            withoutSet.append("")
-
-                    for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
-                        objects.update({node + var: (domains[dom.strip()], domType, without)})
-
-                    line = line[line.find("}") + 2:]
-                    if line.find("or") != -1 or line.find("and") != -1:
-                        if line.find("or") != -1:
-                            leftData, rightData = line.split("or")
-                            mainNode = ConstantNode("or", node, varSet, objects)
-                        else:
-                            leftData, rightData = line.split("and")
-                            mainNode = ConstantNode("and", node, varSet, objects)
-                        leftData = leftData.lower().strip()
-                        rightData = rightData.lower().strip()
-
-                        leftData = leftData[0:leftData.find('(')]
-                        rightData = rightData[0:rightData.find('(')]
-                        leftNode = LeafNode(leftData, weights, algoType)
-                        rightNode = LeafNode(rightData, weights, algoType)
-                        leftName = node + "a"
-                        rightName = node + "b"
-
-                        nodes.update({leftName: leftNode})
-                        nodes.update({rightName: rightNode})
-                        nodes.update({node: mainNode})
-                        connections.update({node: (leftName, rightName)})
-                    else:
-                        leftData = line.lower().strip()
-                        leftData = leftData[0:leftData.find('(')]
-                        rightData = rightData[0:rightData.find('(')]
-                        leftNode = LeafNode(leftData, weights, algoType)
-                        leftName = node + "a"
-                        mainNode = ConstantNode("leaf", node, varSet, objects)
-                        nodes.update({leftName: leftNode})
-                        nodes.update({node: mainNode})
-                        connections.update({node: leftName})
-
-                     # 
-                    if len(varSet) == 1 and len(weights.get(leftData)) > 3:
-                        constCorrection.append([doms[0], node])
-
+                if data == 'C':
+                    self.parseConst(line, domains, weights, constCorrection, connections, node, nodes)
                 else:
-                    var = None
-                    objects = None
-
-                # Add the parsed node to the list of all nodes, the constant node is added seperately due to its different construction step
-                if data != "C":
-                    newNode = CreateNewNode(data, var, objects, weights, algoType)
+                    if data == 'A' or data == 'E':
+                        objects, var = self.parseQuantifier(line, domains)
+                    else:
+                        objects, var = None, None
+                    newNode = CreateNewNode(data, var, objects, weights)
                     nodes.update({node: newNode})
 
+    def parseQuantifier(self, line, domains):
+        var = line[line.find("{") + 1:line.find("}")]
+        without = []
+        domainFull = line[line.find("}") + 2:-2]
+                    
+        if len(domainFull.split("/")) > 1:
+            domainSet, without = domainFull.split("/")
+            domainSet, without = domainSet.split(","), without.split(",")
+        else:
+            domainSet = line[line.find("}") + 2:-2].split(",")
+            
+        domainType = ""
+        if len(domainSet[0].split("-")) > 1:
+            domainSet, domainType = domainSet[0].split("-")
+            domainSet = [domainSet]
+
+        objects = {}
+        objects.update({var: (domains[domainSet[0]], domainType, without, domainFull)})
+        return objects, var
+
+    def parseConst(self, line, domains, weights, constCorrection, connections, node, nodes):
+        varSet = line[line.find("{") + 1:line.find("}")].split(",")
+        line = line[line.find("}") + 2:]
+        doms = line[0:line.find("}")].split(",")
+        objects = {}
+        without = []
+        domainSet = []
+        domainTypeSet = []
+        withoutSet = []
+
+        for dom in doms:
+            if len(dom.split("/")) > 1:
+                domainType, without = dom.split("/")
+                without = without.split("+")
+                withoutSet.append(without)
+                if len(domainType.split("-")) > 1:
+                    d, domainType = domainType.split("-")
+                    domainSet.append(d)
+                else:
+                    domainSet.append(domainType)
+                domainTypeSet.append(domainType)
+            else:
+                if len(dom.split("-")) > 1:
+                    d, domainType = dom.split("-")
+                    domainSet.append(d)
+                    domainTypeSet.append(domainType)
+                else:
+                    d = dom.split(",")
+                    domainSet.append(d[0])
+                    domainTypeSet.append("")
+                withoutSet.append("")
+
+        for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
+            objects.update({node + var: (domains[dom.strip()], domType, without)})
+
+        line = line[line.find("}") + 2:]
+        if line.find("or") != -1 or line.find("and") != -1:
+            if line.find("or") != -1:
+                leftData, rightData = line.split("or")
+                mainNode = ConstantNode("or", node, varSet, objects)
+            else:
+                leftData, rightData = line.split("and")
+                mainNode = ConstantNode("and", node, varSet, objects)
+            leftData = leftData.lower().strip()
+            rightData = rightData.lower().strip()
+            leftData = leftData[0:leftData.find('(')]
+            rightData = rightData[0:rightData.find('(')]
+            leftNode = LeafNode(leftData, weights)
+            rightNode = LeafNode(rightData, weights)
+            leftName = node + "a"
+            rightName = node + "b"
+            
+            nodes.update({leftName: leftNode})
+            nodes.update({rightName: rightNode})
+            nodes.update({node: mainNode})
+            connections.update({node: (leftName, rightName)})
+        else:
+            leftData = line.lower().strip()
+            leftData = leftData[0:leftData.find('(')]
+            leftNode = LeafNode(leftData, weights)
+            leftName = node + "a"
+            mainNode = ConstantNode("leaf", node, varSet, objects)
+            nodes.update({leftName: leftNode})
+            nodes.update({node: mainNode})
+            connections.update({node: leftName})
+
+        if len(varSet) == 1 and len(weights.get(leftData)) > 3:
+            constCorrection.append([doms[0], node])
+    
+    def adjustConstNodes(self, constCorrection, connections, reverseConnections, nodes):
         for constDom, constNode in constCorrection:
-            nextForAllNode = nextMatchingForAll(reverseConnections[constNode], constDom, connections, nodes)
-            if nextForAllNode is not None and not ancestorIsForAll(nextForAllNode, reverseConnections, nodes):
+            nextForAllNode = self.nextMatchingForAll(reverseConnections[constNode], constDom, connections, nodes)
+            if nextForAllNode is not None and not self.ancestorIsForAll(nextForAllNode, reverseConnections, nodes):
                 # print(nextForAllNode, constNode, constDom, nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3])
                 forAllChild = connections[nextForAllNode]
                 constParent = reverseConnections[constNode]
@@ -188,11 +192,7 @@ class Parser(object):
                     
                 nodes[constNode].shouldIntegrate = False
 
-        root = nodeNumPattern.match(content[0]).group().strip()
-        nodes = self.connectNodes(nodes, connections)
-
-        return root, nodes
-
+    
     # parse weights file.
     # In the weights file there can be 3 types of lines:
     # the domain line eg. 'person = {Alice}'
@@ -261,25 +261,25 @@ class Parser(object):
         return nodes
 
 
-def ancestorIsForAll(node, parentList, nodesList):
-    if node not in parentList:
-        return None
-    if type(nodesList[parentList[node]]) is ForAllNode:
-        return parentList[node]
-    else:
-        return ancestorIsForAll(parentList[node], parentList, nodesList)
+    def ancestorIsForAll(self, node, parentList, nodesList):
+        if node not in parentList:
+            return None
+        if type(nodesList[parentList[node]]) is ForAllNode:
+            return parentList[node]
+        else:
+            return self.ancestorIsForAll(parentList[node], parentList, nodesList)
 
 
-def nextMatchingForAll(node, domain, connectionList, nodesList):
-    if type(nodesList[node]) is ForAllNode and nodesList[node].objects[nodesList[node].var][3] == domain:
-        return node
-    elif type(nodesList[node]) is not ConstantNode:
-        if node in connectionList and type(connectionList[node]) is tuple:
-            result0 = nextMatchingForAll(connectionList[node][0], domain, connectionList, nodesList)
-            result1 = nextMatchingForAll(connectionList[node][1], domain, connectionList, nodesList)
-            if result0 is None:
-                return result1
-            else:
-                return result0
-        elif node in connectionList:
-            return nextMatchingForAll(connectionList[node], domain, connectionList, nodesList)
+    def nextMatchingForAll(self, node, domain, connectionList, nodesList):
+        if type(nodesList[node]) is ForAllNode and nodesList[node].objects[nodesList[node].var][3] == domain:
+            return node
+        elif type(nodesList[node]) is not ConstantNode:
+            if node in connectionList and type(connectionList[node]) is tuple:
+                result0 = self.nextMatchingForAll(connectionList[node][0], domain, connectionList, nodesList)
+                result1 = self.nextMatchingForAll(connectionList[node][1], domain, connectionList, nodesList)
+                if result0 is None:
+                    return result1
+                else:
+                    return result0
+            elif node in connectionList:
+                return self.nextMatchingForAll(connectionList[node], domain, connectionList, nodesList)

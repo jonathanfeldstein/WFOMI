@@ -168,11 +168,10 @@ class ConstantNode(Node):
 
 
 class LeafNode(Node):
-    def __init__(self, data=None, weights=None, algoType=None):
+    def __init__(self, data=None, weights=None):
         super().__init__()
         self.data = data
         self.weight = weights[data]
-        self.algoType = algoType
 
     def compute(self, setsize=None, removed=None):
         if type(self.weight) == tuple:
@@ -193,7 +192,7 @@ class LeafNode(Node):
         return 0
 
 
-def CreateNewNode(data=None, var=None, objects=None, weights=None, algoType=None):
+def CreateNewNode(data=None, var=None, objects=None, weights=None):
     if data == 'and':
         return AndNode()
     elif data == 'or':
@@ -203,6 +202,6 @@ def CreateNewNode(data=None, var=None, objects=None, weights=None, algoType=None
     elif data == 'E':
         return ExistsNode(var, objects)
     else:
-        return LeafNode(data, weights, algoType)
+        return LeafNode(data, weights)
 
  

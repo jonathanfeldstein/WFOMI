@@ -9,12 +9,11 @@ def main():
     partitionFile = sys.argv[1]
     queryFile = sys.argv[2]
     weightFile = sys.argv[3]
-    algoType = int(sys.argv[4])
 
     parser = Parser()
     weights, domains = parser.parseWeights(weightFile)
-    partitionRoot, partitionNodes = parser.parseCircuit(partitionFile, weights, domains, algoType)
-    queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains, algoType)
+    partitionRoot, partitionNodes = parser.parseCircuit(partitionFile, weights, domains)
+    queryRoot, queryNodes = parser.parseCircuit(queryFile, weights, domains)
 
     startTime = time.time()
     partitionFunc = partitionNodes[partitionRoot].compute().integrate()
