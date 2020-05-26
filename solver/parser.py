@@ -1,3 +1,8 @@
+"""
+.. module:: parser
+   :synopsis: conatins the parser for the default circuit and weight files as defined in the docs
+.. moduleauthor:: Marcin Korecki
+"""
 from circuit import *
 from sympy.parsing.sympy_parser import parse_expr
 import re

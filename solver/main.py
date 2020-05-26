@@ -1,3 +1,7 @@
+"""
+.. moduleauthor:: Marcin Korecki
+"""
+
 from parser import *
 from circuit import *
 import time

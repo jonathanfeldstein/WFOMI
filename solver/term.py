@@ -1,5 +1,11 @@
+"""
+.. module:: term
+   :synopsis: conatins the term module used to represent the unit of symbolic computations in the graph
+.. moduleauthor:: Marcin Korecki
+"""
 from sympy import *
 import time
+
 
 def symbolicToNumeric(wf, bounds):
     """helper function for the integration"""

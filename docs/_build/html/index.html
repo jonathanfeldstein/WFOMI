@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Documentation for the Code &#8212; wfomi 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="documentation-for-the-code">
+<h1>Documentation for the Code<a class="headerlink" href="#documentation-for-the-code" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-parser">
+<span id="parser"></span><h2>parser<a class="headerlink" href="#module-parser" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-0"></span><dl class="py class">
+<dt id="parser.Parser">
+<em class="property">class </em><code class="sig-prename descclassname">parser.</code><code class="sig-name descname">Parser</code><a class="headerlink" href="#parser.Parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>the parser for the default circuit and weight files defined by the author. The files descriptions can be found in the docs</p>
+<dl class="py method">
+<dt id="parser.Parser.adjustConstNodes">
+<code class="sig-name descname">adjustConstNodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">constCorrection</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.adjustConstNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>adjusts the circuit by moving the constant nodes down when they are above a univesal quantifier over the same domain</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.ancestorIsForAll">
+<code class="sig-name descname">ancestorIsForAll</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.ancestorIsForAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>a helper function used in adjustConstNodes to check if the node has a universal quantifier as an ancestor</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.connectNodes">
+<code class="sig-name descname">connectNodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.connectNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>connects the nodes in self.nodes dictionary based on data in self.connections</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.nextMatchingForAll">
+<code class="sig-name descname">nextMatchingForAll</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.nextMatchingForAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>a helper function used in adjustConstNodes to detect the next universal quantifier of a given node with matching domain</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseCircuit">
+<code class="sig-name descname">parseCircuit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">domains</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseCircuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses a circuit file with the given name and creates nodes using data on the weight functions and domains</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseConnections">
+<code class="sig-name descname">parseConnections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">content</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseConnections" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses the link lines of a circuit file with the given name and stores the connections between nodes in self.connections, 
+and self.reverseConnections</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseConst">
+<code class="sig-name descname">parseConst</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">constCorrection</span></em>, <em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseConst" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses a line contianing a constant node</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseNodes">
+<code class="sig-name descname">parseNodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">content</span></em>, <em class="sig-param"><span class="n">constCorrection</span></em>, <em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">domains</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses the node lines of a circuit file with the given name, creates and stores the nodes in the nodes dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseQuantifier">
+<code class="sig-name descname">parseQuantifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em>, <em class="sig-param"><span class="n">domains</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseQuantifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses a line contianing a universal or existential quantifier</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseWeights">
+<code class="sig-name descname">parseWeights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseWeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses the weight file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-term">
+<span id="term"></span><h2>term<a class="headerlink" href="#module-term" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-1"></span><dl class="py class">
+<dt id="term.Term">
+<em class="property">class </em><code class="sig-prename descclassname">term.</code><code class="sig-name descname">Term</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bounds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">const</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.Term" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Term object represent the smallest computational unit over the circuit representation. The Term is used to store the weight
+functions in symbolic form, the associated bounds and the constant multiplier. The term implements multiplication and addition as well
+as integration. The weights, bounds and constants are all lists and their elements corresponding to elements of a sum.</p>
+<dl class="py method">
+<dt id="term.Term.integrate">
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#term.Term.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements efficient integation of a term.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="term.integrateFromDict">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">integrateFromDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wf</span></em>, <em class="sig-param"><span class="n">bounds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.integrateFromDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for the integration</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="term.symbolicToNumeric">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">symbolicToNumeric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wf</span></em>, <em class="sig-param"><span class="n">bounds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.symbolicToNumeric" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for the integration</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-circuit">
+<span id="circuit"></span><h2>circuit<a class="headerlink" href="#module-circuit" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-2"></span><p>each node has a compute class which follows the computation step of the algorithm for the given node
+the maxDomainSize is used to compute the maximum domain size for the existential node
+.. moduleauthor:: Marcin Korecki</p>
+<dl class="py class">
+<dt id="circuit.AndNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">AndNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.AndNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.AndNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.AndNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the and node by multiplying two terms at its child nodes. the domSize and removed are passed for 
+potential existential and universals that may be the node’s descendants</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.AndNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.AndNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.ConstNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">ConstNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodeName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">varList</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ConstNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.ConstNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ConstNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the symbolic value at the constant node depending on its type</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ConstNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ConstNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.ExistsNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">ExistsNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ExistsNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.ExistsNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ExistsNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the existential node based on the size of the domain it quantifies over and taking into account the
+objects removed from it</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ExistsNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ExistsNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.ForAllNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">ForAllNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ForAllNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.ForAllNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ForAllNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the numerical value at the universal node based on the size of the domain it quantifies over taking into account the 
+objects that have been removed from it</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ForAllNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ForAllNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.LeafNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">LeafNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.LeafNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.LeafNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.LeafNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the leaves depending on weather the corresponding weight is a float or a function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.LeafNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.LeafNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.Node">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">Node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base class defining a node, all other nodes inherit from it</p>
+<dl class="py method">
+<dt id="circuit.Node.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.Node.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.OrNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">OrNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.OrNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.OrNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.OrNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the or node by adding two terms at its child nodes, the setsize and removed are passed for potential 
+existential and universals that may be the node’s descendants</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.OrNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.OrNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">wfomi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, korecki.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

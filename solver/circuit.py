@@ -1,10 +1,15 @@
+"""
+.. module:: circuit
+   :synopsis: The nodes represent the nodes of the cicuit 
+each node has a compute class which follows the computation step of the algorithm for the given node
+the maxDomainSize is used to compute the maximum domain size for the existential node
+.. moduleauthor:: Marcin Korecki
+"""
+
 from sympy import *
 from sympy.abc import *
 from term import *
 
-"""The nodes represent the nodes of the cicuit
-each node has a compute class which follows the computation step of the algorithm for the given node
-the maxDomainSize is used to compute the maximum domain size for the existential node"""
 
 class Node(object):
     """The base class defining a node, all other nodes inherit from it"""
