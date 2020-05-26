@@ -18,18 +18,15 @@ def main():
     startTime = time.time()
     partitionFunc = partitionNodes[partitionRoot].compute().integrate()
     queryFunc = queryNodes[queryRoot].compute().integrate()
-    queryProb = queryFunc.constant[0] / partitionFunc.constant[0]
+    queryProb = queryFunc.const[0] / partitionFunc.const[0]
     endTime = time.time()
     resultTime = endTime - startTime
-    print(str(resultTime) + ", ", end = '')
+    print("time to compute:", resultTime)
     # print(round(mean(time_100), 3))
 
-    print("partition function =", partitionFunc)
-    print("the query =", queryFunc)
+    print("partition function =", partitionFunc.const[0])
+    print("the query =", queryFunc.const[0])
     print("P(query) =", queryProb)
-
-    # print("time to compute:", endTime - startTime)
-
 
 if __name__ == "__main__":
     main()

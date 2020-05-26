@@ -4,7 +4,10 @@ import re
 
 
 class Parser(object):
+    """the parser for the default circuit and weight files defined by the author. The files descriptions can be found in the docs"""
     def __init__(self):
+        """the parsers stores 3 regex patterns used to detect lines containing node data, which is split into node number and node data, 
+        and link data. It also stores the forward and backward connections as well as the created nodes as dictionaries"""
         self.nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
         self.nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
         self.linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
@@ -14,6 +17,7 @@ class Parser(object):
         self.nodes = {}
 
     def parseCircuit(self, name, weights, domains):
+        """parses a circuit file with the given name and creates nodes using data on the weight functions and domains"""
         print("parsing file:", name)
 
         with open(name) as f:
@@ -33,13 +37,14 @@ class Parser(object):
 
         return root, self.nodes
 
-
     def parseConnections(self, content):
+        """parses the link lines of a circuit file with the given name and stores the connections between nodes in self.connections, 
+        and self.reverseConnections"""
         for line in content:
             matchLink = self.linkPattern.match(line)
             matchNum = self.nodeNumPattern.match(line)
 
-            # parse the connection line like 'n0 -> n1' else parse the node line
+            # parse the connection line like 'n0 -> n1'
             if matchLink is not None:
                 matchData = self.nodeDataPattern.match(line[matchNum.end() + 3:])  # +3 for the _->, space+arrow
                 node1 = matchNum.group().strip()
@@ -51,6 +56,7 @@ class Parser(object):
                 self.reverseConnections[node2] = node1
 
     def parseNodes(self, content, constCorrection, weights, domains):
+        """parses the node lines of a circuit file with the given name, creates and stores the nodes in the nodes dictionary"""
         for line in content:
             matchLink = self.linkPattern.match(line)
             matchNum = self.nodeNumPattern.match(line)
@@ -73,6 +79,7 @@ class Parser(object):
                     self.nodes.update({node: newNode})
 
     def parseQuantifier(self, line, domains):
+        """parses a line contianing a universal or existential quantifier"""
         var = line[line.find("{") + 1:line.find("}")]
         without = []
         domainFull = line[line.find("}") + 2:-2]
@@ -93,6 +100,7 @@ class Parser(object):
         return objects, var
 
     def parseConst(self, line, domains, weights, constCorrection, node):
+        """parses a line contianing a constant node"""
         varSet = line[line.find("{") + 1:line.find("}")].split(",")
         line = line[line.find("}") + 2:]
         doms = line[0:line.find("}")].split(",")
@@ -131,10 +139,10 @@ class Parser(object):
         if line.find("or") != -1 or line.find("and") != -1:
             if line.find("or") != -1:
                 leftData, rightData = line.split("or")
-                mainNode = ConstantNode("or", node, varSet, objects)
+                mainNode = ConstNode("or", node, varSet, objects)
             else:
                 leftData, rightData = line.split("and")
-                mainNode = ConstantNode("and", node, varSet, objects)
+                mainNode = ConstNode("and", node, varSet, objects)
             leftData = leftData.lower().strip()
             rightData = rightData.lower().strip()
             leftData = leftData[0:leftData.find('(')]
@@ -153,7 +161,7 @@ class Parser(object):
             leftData = leftData[0:leftData.find('(')]
             leftNode = LeafNode(leftData, weights)
             leftName = node + "a"
-            mainNode = ConstantNode("leaf", node, varSet, objects)
+            mainNode = ConstNode("leaf", node, varSet, objects)
             self.nodes.update({leftName: leftNode})
             self.nodes.update({node: mainNode})
             self.connections.update({node: leftName})
@@ -162,6 +170,7 @@ class Parser(object):
             constCorrection.append([doms[0], node])
     
     def adjustConstNodes(self, constCorrection):
+        """adjusts the circuit by moving the constant nodes down when they are above a univesal quantifier over the same domain"""
         for constDom, constNode in constCorrection:
             nextForAllNode = self.nextMatchingForAll(self.reverseConnections[constNode], constDom)
             if nextForAllNode is not None and not self.ancestorIsForAll(nextForAllNode):
@@ -195,18 +204,10 @@ class Parser(object):
                     self.reverseConnections.update({forAllChild: constParent})
                     
                 self.nodes[constNode].shouldIntegrate = False
-
-    
-    # parse weights file.
-    # In the weights file there can be 3 types of lines:
-    # the domain line eg. 'person = {Alice}'
-    # the simple weight line eg. 'pre: [1, 10]', meaning the predicate pre is assigned weight 1 and its negation is assigned weight 10
-    # the complex weight line eg. 'bmi(x)fun x**2 + 10 bounds[5, 10]'
-    # note that for complex weights the negation weight has to be specified seperately eg. 'neg bmi(x)fun x**2 + 10 bounds[10, 20]'
-    # IMPORTANT - the name of the arguments of the weight functions must correspond to the argument names used in the circuit description 
+ 
     def parseWeights(self, name):
-        # print("parsing file:", name)
-
+        """parses the weight file"""
+        print("parsing file:", name)
         with open(name) as f:
             content = f.readlines()
 
@@ -256,6 +257,7 @@ class Parser(object):
         return weights, domains
 
     def connectNodes(self):
+        """connects the nodes in self.nodes dictionary based on data in self.connections"""
         for node in self.connections.keys():
             if type(self.connections[node]) is tuple:
                 self.nodes[node].left = self.nodes[self.connections[node][0]]
@@ -264,6 +266,7 @@ class Parser(object):
                 self.nodes[node].left = self.nodes[self.connections[node]]
 
     def ancestorIsForAll(self, node):
+        """a helper function used in adjustConstNodes to check if the node has a universal quantifier as an ancestor"""
         if node not in self.reverseConnections:
             return None
         if type(self.nodes[self.reverseConnections[node]]) is ForAllNode:
@@ -273,9 +276,10 @@ class Parser(object):
 
 
     def nextMatchingForAll(self, node, domain):
+        """a helper function used in adjustConstNodes to detect the next universal quantifier of a given node with matching domain"""
         if type(self.nodes[node]) is ForAllNode and self.nodes[node].objects[self.nodes[node].var][3] == domain:
             return node
-        elif type(self.nodes[node]) is not ConstantNode:
+        elif type(self.nodes[node]) is not ConstNode:
             if node in self.connections and type(self.connections[node]) is tuple:
                 result0 = self.nextMatchingForAll(self.connections[node][0], domain)
                 result1 = self.nextMatchingForAll(self.connections[node][1], domain)

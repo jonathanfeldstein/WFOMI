@@ -2,19 +2,24 @@ from sympy import *
 import time
 
 def symbolicToNumeric(wf, bounds):
+    """helper function for the integration"""
     result = wf
     for arg, bound in bounds.items():
         result = result.subs(arg, bound[1])-result.subs(arg, bound[0])
     return result
 
 def integrateFromDict(wf, bounds):
+    """helper function for the integration"""
     result = wf
     for key, value in bounds.items():
         result = wf.integrate([key, value[0], value[1]])
     return result
 
 class Term(object):
-    def __init__(self, weights=None, bounds=None, constant=None):
+    """The Term object represent the smallest computational unit over the circuit representation. The Term is used to store the weight
+    functions in symbolic form, the associated bounds and the constant multiplier. The term implements multiplication and addition as well
+    as integration. The weights, bounds and constants are all lists and their elements corresponding to elements of a sum."""
+    def __init__(self, weights=None, bounds=None, const=None):
         if weights is None:
             self.weights = [1]
         else:
@@ -26,20 +31,22 @@ class Term(object):
             self.bounds = bounds
         # constant value carried separately for speed improvement.
         # Default is 1 in which case the weight function is not altered by the cst.
-        if constant is None:
-            self.constant = [1]
+        if const is None:
+            self.const = [1]
         else:
-            self.constant = constant
+            self.const = const
 
     def __add__(self, other):
+        """Implements addition for two terms."""
         weights = self.weights + other.weights
         bounds = self.bounds + other.bounds
-        constant = self.constant + other.constant
-        return Term(weights, bounds, constant)
+        const = self.const + other.const
+        return Term(weights, bounds, const)
 
     def __mul__(self, other):
+        """Implements multiplication for two terms taking care of bounds of functions of the same variables."""
         weights = flatten(Matrix(self.weights) * Matrix(other.weights).T)
-        constant = flatten(Matrix(self.constant) * Matrix(other.constant).T)
+        const = flatten(Matrix(self.const) * Matrix(other.const).T)
         bounds = []
         for bounds1 in self.bounds:
             for bounds2 in other.bounds:
@@ -51,13 +58,14 @@ class Term(object):
                 for variable in bounds2set-bounds1set:
                     newBound[variable] = bounds2.get(variable)
                 bounds.append(newBound)
-        return Term(weights, bounds, constant)
+        return Term(weights, bounds, const)
 
     def __str__(self):
-        return "weights: " + str(self.weights) + " bounds: " + str(self.bounds) + "constant: " + str(self.constant)
+        return "weights: " + str(self.weights) + " bounds: " + str(self.bounds) + "const: " + str(self.const)
 
     def integrate(self):
+        """Implements efficient integation of a term."""
         integrated = {wf: wf.integrate(*wf.free_symbols) if hasattr(wf, 'free_symbols') and (len(wf.free_symbols) != 0) else wf for wf in set(self.weights)}
-        integral = [symbolicToNumeric(integrated[self.weights[i]], self.bounds[i])*self.constant[i] if hasattr(self.weights[i], 'free_symbols') else self.weights[i]*self.constant[i] for i in range(len(self.weights))]
-        # integral = [integrateFromDict(self.weights[i], self.bounds[i])*self.constant[i] if hasattr(self.wfs[i], 'free_symbols') else self.weights[i]*self.constant[i] for i in range(len(self.weights))]
+        integral = [symbolicToNumeric(integrated[self.weights[i]], self.bounds[i])*self.const[i] if hasattr(self.weights[i], 'free_symbols') else self.weights[i]*self.const[i] for i in range(len(self.weights))]
+        # integral = [integrateFromDict(self.weights[i], self.bounds[i])*self.const[i] if hasattr(self.wfs[i], 'free_symbols') else self.weights[i]*self.const[i] for i in range(len(self.weights))]
         return Term([1], [{}], [sum(integral)])

@@ -7,3 +7,11 @@ algo_type = 0 or 1, 0 -> slow algorithm, 1 -> fast, hashing algorithm
 eg.
 python3 main.py test_input/diabetes/theory.txt test_input/diabetes/query.txt test_input/diabetes/weights_simple.txt 0
 
+
+    # parse weights file.
+    # In the weights file there can be 3 types of lines:
+    # the domain line eg. 'person = {Alice}'
+    # the simple weight line eg. 'pre: [1, 10]', meaning the predicate pre is assigned weight 1 and its negation is assigned weight 10
+    # the complex weight line eg. 'bmi(x)fun x**2 + 10 bounds[5, 10]'
+    # note that for complex weights the negation weight has to be specified seperately eg. 'neg bmi(x)fun x**2 + 10 bounds[10, 20]'
+    # IMPORTANT - the name of the arguments of the weight functions must correspond to the argument names used in the circuit description
