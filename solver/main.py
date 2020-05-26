@@ -18,11 +18,10 @@ def main():
     startTime = time.time()
     partitionFunc = partitionNodes[partitionRoot].compute().integrate()
     queryFunc = queryNodes[queryRoot].compute().integrate()
-    # queryProb = queryFunc / partitionFunc
-    queryProb = queryFunc.cst[0] / partitionFunc.cst[0]
+    queryProb = queryFunc.constant[0] / partitionFunc.constant[0]
     endTime = time.time()
-    result_time = endTime - startTime
-    print(str(result_time) + ", ", end = '')
+    resultTime = endTime - startTime
+    print(str(resultTime) + ", ", end = '')
     # print(round(mean(time_100), 3))
 
     print("partition function =", partitionFunc)

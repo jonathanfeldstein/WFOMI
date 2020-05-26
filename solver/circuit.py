@@ -39,7 +39,7 @@ class ForAllNode(Node):
 
         term = self.left.compute(setsize=setsize, removed=removed)
         result = term.integrate()
-        return Term([1], [{}], [result.cst[0]**exponent])
+        return Term([1], [{}], [result.constant[0]**exponent])
 
     def maxDomainSize(self):
         domain, _, without, _ = self.objects[self.var]
@@ -152,7 +152,7 @@ class ConstantNode(Node):
 
         if self.shouldIntegrate:
             result = result.integrate()
-            return Term([1], [{}], [result.cst[0]**exponent])
+            return Term([1], [{}], [result.constant[0]**exponent])
         else:
             return result
     
