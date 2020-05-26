@@ -8,29 +8,33 @@ class Parser(object):
         self.nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
         self.nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
         self.linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
-        
+
+        self.connections = {}
+        self.reverseConnections = {}
+        self.nodes = {}
+
     def parseCircuit(self, name, weights, domains):
         print("parsing file:", name)
 
         with open(name) as f:
             content = f.readlines()
 
+        self.connections = {}
+        self.reverseConnections = {}
+        self.nodes = {}
         constCorrection = []
-        connections = {}
-        reverseConnections = {}
-        nodes = {}
 
-        self.parseConnections(content, connections, reverseConnections)
-        self.parseNodes(content, constCorrection, connections, reverseConnections, nodes, weights, domains)
-        self.adjustConstNodes(constCorrection, connections, reverseConnections, nodes)
+        self.parseConnections(content)
+        self.parseNodes(content, constCorrection, weights, domains)
+        self.adjustConstNodes(constCorrection)
           
         root = self.nodeNumPattern.match(content[0]).group().strip()
-        nodes = self.connectNodes(nodes, connections)
+        self.connectNodes()
 
-        return root, nodes
+        return root, self.nodes
 
 
-    def parseConnections(self, content, connections, reverseConnections):
+    def parseConnections(self, content):
         for line in content:
             matchLink = self.linkPattern.match(line)
             matchNum = self.nodeNumPattern.match(line)
@@ -40,13 +44,13 @@ class Parser(object):
                 matchData = self.nodeDataPattern.match(line[matchNum.end() + 3:])  # +3 for the _->, space+arrow
                 node1 = matchNum.group().strip()
                 node2 = matchData.group().strip()
-                if node1 not in connections:
-                    connections[node1] = node2
+                if node1 not in self.connections:
+                    self.connections[node1] = node2
                 else:
-                    connections[node1] = (connections[node1], node2)
-                reverseConnections[node2] = node1
+                    self.connections[node1] = (self.connections[node1], node2)
+                self.reverseConnections[node2] = node1
 
-    def parseNodes(self, content, constCorrection, connections, reverseConnections, nodes, weights, domains):
+    def parseNodes(self, content, constCorrection, weights, domains):
         for line in content:
             matchLink = self.linkPattern.match(line)
             matchNum = self.nodeNumPattern.match(line)
@@ -59,14 +63,14 @@ class Parser(object):
                     data = data[0:data.find("(")]
 
                 if data == 'C':
-                    self.parseConst(line, domains, weights, constCorrection, connections, node, nodes)
+                    self.parseConst(line, domains, weights, constCorrection, node)
                 else:
                     if data == 'A' or data == 'E':
                         objects, var = self.parseQuantifier(line, domains)
                     else:
                         objects, var = None, None
                     newNode = CreateNewNode(data, var, objects, weights)
-                    nodes.update({node: newNode})
+                    self.nodes.update({node: newNode})
 
     def parseQuantifier(self, line, domains):
         var = line[line.find("{") + 1:line.find("}")]
@@ -88,7 +92,7 @@ class Parser(object):
         objects.update({var: (domains[domainSet[0]], domainType, without, domainFull)})
         return objects, var
 
-    def parseConst(self, line, domains, weights, constCorrection, connections, node, nodes):
+    def parseConst(self, line, domains, weights, constCorrection, node):
         varSet = line[line.find("{") + 1:line.find("}")].split(",")
         line = line[line.find("}") + 2:]
         doms = line[0:line.find("}")].split(",")
@@ -140,57 +144,57 @@ class Parser(object):
             leftName = node + "a"
             rightName = node + "b"
             
-            nodes.update({leftName: leftNode})
-            nodes.update({rightName: rightNode})
-            nodes.update({node: mainNode})
-            connections.update({node: (leftName, rightName)})
+            self.nodes.update({leftName: leftNode})
+            self.nodes.update({rightName: rightNode})
+            self.nodes.update({node: mainNode})
+            self.connections.update({node: (leftName, rightName)})
         else:
             leftData = line.lower().strip()
             leftData = leftData[0:leftData.find('(')]
             leftNode = LeafNode(leftData, weights)
             leftName = node + "a"
             mainNode = ConstantNode("leaf", node, varSet, objects)
-            nodes.update({leftName: leftNode})
-            nodes.update({node: mainNode})
-            connections.update({node: leftName})
+            self.nodes.update({leftName: leftNode})
+            self.nodes.update({node: mainNode})
+            self.connections.update({node: leftName})
 
         if len(varSet) == 1 and len(weights.get(leftData)) > 3:
             constCorrection.append([doms[0], node])
     
-    def adjustConstNodes(self, constCorrection, connections, reverseConnections, nodes):
+    def adjustConstNodes(self, constCorrection):
         for constDom, constNode in constCorrection:
-            nextForAllNode = self.nextMatchingForAll(reverseConnections[constNode], constDom, connections, nodes)
-            if nextForAllNode is not None and not self.ancestorIsForAll(nextForAllNode, reverseConnections, nodes):
+            nextForAllNode = self.nextMatchingForAll(self.reverseConnections[constNode], constDom)
+            if nextForAllNode is not None and not self.ancestorIsForAll(nextForAllNode):
                 # print(nextForAllNode, constNode, constDom, nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3])
-                forAllChild = connections[nextForAllNode]
-                constParent = reverseConnections[constNode]
-                constGrandParent = reverseConnections[constParent]
+                forAllChild = self.connections[nextForAllNode]
+                constParent = self.reverseConnections[constNode]
+                constGrandParent = self.reverseConnections[constParent]
                     
                 parentSibling = None
-                if connections[constGrandParent] != constParent:
-                    parentSibling = (set(connections[constGrandParent]) - set([constParent])).pop()
+                if self.connections[constGrandParent] != constParent:
+                    parentSibling = (set(self.connections[constGrandParent]) - set([constParent])).pop()
                     constSibling = None
-                if connections[constParent] != constNode:
-                    constSibling = (set(connections[constParent]) - set([constNode])).pop()
+                if self.connections[constParent] != constNode:
+                    constSibling = (set(self.connections[constParent]) - set([constNode])).pop()
                         
-                connections.update({nextForAllNode: constParent})
-                connections.update({constParent: (constNode, forAllChild)})
+                self.connections.update({nextForAllNode: constParent})
+                self.connections.update({constParent: (constNode, forAllChild)})
                 if parentSibling is not None and constSibling is not None:
-                    connections.update({constGrandParent: (parentSibling, constSibling)})
-                    reverseConnections.update({parentSibling: constGrandParent})
-                    reverseConnections.update({constSibling: constGrandParent})
+                    self.connections.update({constGrandParent: (parentSibling, constSibling)})
+                    self.reverseConnections.update({parentSibling: constGrandParent})
+                    self.reverseConnections.update({constSibling: constGrandParent})
                 elif parentSibling is None:
-                    connections.update({constGrandParent: constSibling})
-                    reverseConnections.update({constSibling: constGrandParent})
+                    self.connections.update({constGrandParent: constSibling})
+                    self.reverseConnections.update({constSibling: constGrandParent})
                 elif constSibling is None:
-                    connections.update({constGrandParent: parentSibling})
-                    reverseConnections.update({parentSibling: constGrandParent})
+                    self.connections.update({constGrandParent: parentSibling})
+                    self.reverseConnections.update({parentSibling: constGrandParent})
                         
-                    reverseConnections.update({constParent: nextForAllNode})
-                    reverseConnections.update({constNode: constParent})
-                    reverseConnections.update({forAllChild: constParent})
+                    self.reverseConnections.update({constParent: nextForAllNode})
+                    self.reverseConnections.update({constNode: constParent})
+                    self.reverseConnections.update({forAllChild: constParent})
                     
-                nodes[constNode].shouldIntegrate = False
+                self.nodes[constNode].shouldIntegrate = False
 
     
     # parse weights file.
@@ -251,35 +255,33 @@ class Parser(object):
 
         return weights, domains
 
-    def connectNodes(self, nodes, connections):
-        for node in connections.keys():
-            if type(connections[node]) is tuple:
-                nodes[node].left = nodes[connections[node][0]]
-                nodes[node].right = nodes[connections[node][1]]
+    def connectNodes(self):
+        for node in self.connections.keys():
+            if type(self.connections[node]) is tuple:
+                self.nodes[node].left = self.nodes[self.connections[node][0]]
+                self.nodes[node].right = self.nodes[self.connections[node][1]]
             else:
-                nodes[node].left = nodes[connections[node]]
-        return nodes
+                self.nodes[node].left = self.nodes[self.connections[node]]
 
-
-    def ancestorIsForAll(self, node, parentList, nodesList):
-        if node not in parentList:
+    def ancestorIsForAll(self, node):
+        if node not in self.reverseConnections:
             return None
-        if type(nodesList[parentList[node]]) is ForAllNode:
-            return parentList[node]
+        if type(self.nodes[self.reverseConnections[node]]) is ForAllNode:
+            return self.reverseConnections[node]
         else:
-            return self.ancestorIsForAll(parentList[node], parentList, nodesList)
+            return self.ancestorIsForAll(self.reverseConnections[node])
 
 
-    def nextMatchingForAll(self, node, domain, connectionList, nodesList):
-        if type(nodesList[node]) is ForAllNode and nodesList[node].objects[nodesList[node].var][3] == domain:
+    def nextMatchingForAll(self, node, domain):
+        if type(self.nodes[node]) is ForAllNode and self.nodes[node].objects[self.nodes[node].var][3] == domain:
             return node
-        elif type(nodesList[node]) is not ConstantNode:
-            if node in connectionList and type(connectionList[node]) is tuple:
-                result0 = self.nextMatchingForAll(connectionList[node][0], domain, connectionList, nodesList)
-                result1 = self.nextMatchingForAll(connectionList[node][1], domain, connectionList, nodesList)
+        elif type(self.nodes[node]) is not ConstantNode:
+            if node in self.connections and type(self.connections[node]) is tuple:
+                result0 = self.nextMatchingForAll(self.connections[node][0], domain)
+                result1 = self.nextMatchingForAll(self.connections[node][1], domain)
                 if result0 is None:
                     return result1
                 else:
                     return result0
-            elif node in connectionList:
-                return self.nextMatchingForAll(connectionList[node], domain, connectionList, nodesList)
+            elif node in self.connections:
+                return self.nextMatchingForAll(self.connections[node], domain)
