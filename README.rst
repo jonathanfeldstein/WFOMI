@@ -1,5 +1,3 @@
-.. highlight:: console
-
 The pywfomi solver written in python3.
 Py stands for python, wfomi stands for weighted first orde model integration.
 The solver implements a novel algorithm based on the work of Jonathan Feldstein.
@@ -42,11 +40,11 @@ An example of the weights file follows. Additional examples can be found in test
 
 .. code-block:: python
 
-person = {Guy, Nima, Wannes, Jesse, Luc}
-friends: [0.1, 0.9]
-smokes(b)fun -0.001*(b-27)**2+0.3  bounds[35, 45] 
-neg smokes(b)fun -0.001*(b-27)**2+0.3  bounds[10, 35] 
-f_1: [7.38905609893065, 1]
+   person = {Guy, Nima, Wannes, Jesse, Luc}
+   friends: [0.1, 0.9]
+   smokes(b)fun -0.001*(b-27)**2+0.3  bounds[35, 45] 
+   neg smokes(b)fun -0.001*(b-27)**2+0.3  bounds[10, 35] 
+   f_1: [7.38905609893065, 1]
 
 The circuit files contain the theory and query circuits.
 There are two types of lines in the circuit file, one corresponding to the contents of the given node and the other indicating the connections between nodes. These lines can be intermixed but for readibility it is customary to first write the contents lines and then the connections lines. 
@@ -60,52 +58,52 @@ An example of the circuit file follows. Additional examples can be found in test
 
 .. code-block:: python
 
-n23 and
-n0  C{X}{person} friends(X,X) or neg friends(X,X) 
-n22 E{x}{person}
-n21 and
-n1  C{X,Y}{person-bot/Y, person-bot} friends(X,Y) or neg friends(X,Y) 
-n20 and
-n2  C{X,Y}{person/Y, person-top} friends(X,Y) or neg friends(X,Y) 
-n19 and
-n3  C{X}{person-top} smokes(X) 
-n18 and
-n4  C{X,Y}{person, person-top} f_1(X,Y) 
-n17 and
-n5  C{X}{person-bot} neg smokes(X) 
-n16 and
-n6  C{X,Y}{person-bot, person-bot} f_1(X,Y) 
-n15 A{x}{person-top}
-n14 A{y}{person-bot}
-n13 or
-n9 and
-n7  f_1(x,y)
-n8  neg friends(x,y)
-n12 and
-n10  neg f_1(x,y)
-n11  friends(x,y)
-n23 -> n0;
-n23 -> n22;
-n22 -> n21;
-n21 -> n1;
-n21 -> n20;
-n20 -> n2;
-n20 -> n19;
-n19 -> n3;
-n19 -> n18;
-n18 -> n4;
-n18 -> n17;
-n17 -> n5;
-n17 -> n16;
-n16 -> n6;
-n16 -> n15;
-n15 -> n14;
-n14 -> n13;
-n13 -> n9;
-n13 -> n12;
-n9 -> n7;
-n9 -> n8;
-n12 -> n10;
-n12 -> n11;
+   n23 and
+   n0  C{X}{person} friends(X,X) or neg friends(X,X) 
+   n22 E{x}{person}
+   n21 and
+   n1  C{X,Y}{person-bot/Y, person-bot} friends(X,Y) or neg friends(X,Y) 
+   n20 and
+   n2  C{X,Y}{person/Y, person-top} friends(X,Y) or neg friends(X,Y) 
+   n19 and
+   n3  C{X}{person-top} smokes(X) 
+   n18 and
+   n4  C{X,Y}{person, person-top} f_1(X,Y) 
+   n17 and
+   n5  C{X}{person-bot} neg smokes(X) 
+   n16 and
+   n6  C{X,Y}{person-bot, person-bot} f_1(X,Y) 
+   n15 A{x}{person-top}
+   n14 A{y}{person-bot}
+   n13 or
+   n9 and
+   n7  f_1(x,y)
+   n8  neg friends(x,y)
+   n12 and
+   n10  neg f_1(x,y)
+   n11  friends(x,y)
+   n23 -> n0;
+   n23 -> n22;
+   n22 -> n21;
+   n21 -> n1;
+   n21 -> n20;
+   n20 -> n2;
+   n20 -> n19;
+   n19 -> n3;
+   n19 -> n18;
+   n18 -> n4;
+   n18 -> n17;
+   n17 -> n5;
+   n17 -> n16;
+   n16 -> n6;
+   n16 -> n15;
+   n15 -> n14;
+   n14 -> n13;
+   n13 -> n9;
+   n13 -> n12;
+   n9 -> n7;
+   n9 -> n8;
+   n12 -> n10;
+   n12 -> n11;
 
   
