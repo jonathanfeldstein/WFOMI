@@ -1,7 +1,13 @@
-The pywfomi solver written in python3.
+Intro
+===========
+
+| The repository for the pywfomi solver written in python3.
 Py stands for python, wfomi stands for weighted first orde model integration.
 The solver implements a novel algorithm based on the work of Jonathan Feldstein.
 The solver outperforms the wfomc solver - Forclift as well as wmi solver - pywmi in terms of efficiency and expressiveness. 
+
+How to run it
+===========
 
 To run the solver, change directory to the solver folder and call:
 
@@ -24,8 +30,16 @@ Example call would look like this:
 The docs folder contains this documentation.
 The test_input folder contains examples that can be run to test the software.
 
+
+Input files
+===========
+
 The solver requires two kinds of input files.
 The two files representing the circuits, the theory circuit and the query circuit and the one file representing the weights of the predicates occuring in the two cicuits. In this section we present the syntax of these files. The default parser included in the solver works with the here explained file formats, however it should be easy to extend or introduce new parsers for different file formats. 
+
+
+Weights files
+-----------
 
 The weights file contains the weights corresponding to the predicates included in the circuit files.
 In the weights file there can be 3 types of lines:
@@ -46,6 +60,9 @@ An example of the weights file follows. Additional examples can be found in test
    neg smokes(b)fun -0.001*(b-27)**2+0.3  bounds[10, 35] 
    f_1: [7.38905609893065, 1]
 
+Cicuit files
+-----------
+   
 The circuit files contain the theory and query circuits.
 There are two types of lines in the circuit file, one corresponding to the contents of the given node and the other indicating the connections between nodes. These lines can be intermixed but for readibility it is customary to first write the contents lines and then the connections lines. 
 The lines always begin with the nX eg. n1 where X indicates the unique node number which is used to identify it.
