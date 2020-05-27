@@ -1,4 +1,6 @@
 """
+.. module:: wfomi
+   :synopsis: the main file of the solver, computes the wfomi of the given theory and query files given the weights of the predicates
 .. moduleauthor:: Marcin Korecki
 """
 
@@ -8,8 +10,11 @@ import time
 import sys
 from statistics import mean
 
-
-def main():
+def pywfomi():
+    """
+    the main function of the solver, takes the theory circuit, query circuit and the weight files 
+    as arguments from the command line in that order and returns the probability of the query
+    """
     partitionFile = sys.argv[1]
     queryFile = sys.argv[2]
     weightFile = sys.argv[3]
@@ -33,4 +38,4 @@ def main():
     print("P(query) =", queryProb)
 
 if __name__ == "__main__":
-    main()
+    pywfomi()

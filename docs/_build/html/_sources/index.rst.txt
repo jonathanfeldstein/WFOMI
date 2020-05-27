@@ -1,26 +1,57 @@
-Documentation for the Code
+Documentation: pywfomi solver 
 **************************
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-..
-   main
-   ===================
-   .. automodule:: main
-	  :members:
 
-parser
-=================
-.. automodule:: parser
+Introduction
+===========
+
+.. include:: README.rst
+
+Input files
+===========
+
+.. include:: input.rst
+
+Weights file
+-----------
+
+.. include:: weightInput.rst
+
+
+Cicuit file
+-----------
+
+.. include:: circuitInput.rst
+
+Code
+===================
+Here follows the documentation of the python code of the solver.
+			 
+pywfomi
+-----------
+.. automodule:: pywfomi
    :members:
 		 
 term
-=====================
+-----------
 .. automodule:: term
    :members:
+   :special-members:
+   :exclude-members: __dict__,__weakref__
 
 circuit
-===================
+-----------
 .. automodule:: circuit
    :members:
+   :special-members:
+   :exclude-members: __dict__,__weakref__
+
+parser
+-----------
+.. automodule:: parser
+   :members:
+   :special-members:
+   :exclude-members: __dict__,__weakref__

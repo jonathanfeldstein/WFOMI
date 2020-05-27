@@ -9,10 +9,14 @@ import re
 
 
 class Parser(object):
-    """the parser for the default circuit and weight files defined by the author. The files descriptions can be found in the docs"""
+    """
+    the parser for the default circuit and weight files defined by the author. The files descriptions can be found in the docs
+    """
     def __init__(self):
-        """the parsers stores 3 regex patterns used to detect lines containing node data, which is split into node number and node data, 
-        and link data. It also stores the forward and backward connections as well as the created nodes as dictionaries"""
+        """
+        the parsers stores 3 regex patterns used to detect lines containing node data, which is split into node number and node data, 
+        and link data. It also stores the forward and backward connections as well as the created nodes as dictionaries
+        """
         self.nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
         self.nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
         self.linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
@@ -22,7 +26,15 @@ class Parser(object):
         self.nodes = {}
 
     def parseCircuit(self, name, weights, domains):
-        """parses a circuit file with the given name and creates nodes using data on the weight functions and domains"""
+        """
+        parses a circuit file with the given name and creates nodes using data on the weight functions and domains
+
+        :param name: the path to the circuit file to be parsed
+        :param weights: the weights dictionary as returned by the :func:`~Parser.parseWeights`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
+
+        :returns: the root node and the dictionary of all nodes
+        """
         print("parsing file:", name)
 
         with open(name) as f:
@@ -43,8 +55,12 @@ class Parser(object):
         return root, self.nodes
 
     def parseConnections(self, content):
-        """parses the link lines of a circuit file with the given name and stores the connections between nodes in self.connections, 
-        and self.reverseConnections"""
+        """
+        parses the link lines of a circuit file with the given name and stores the connections between nodes in self.connections, 
+        and self.reverseConnections
+
+        :param content: the contents of the file as read by :func:`~Parser.parseCircuit`
+        """
         for line in content:
             matchLink = self.linkPattern.match(line)
             matchNum = self.nodeNumPattern.match(line)
@@ -61,7 +77,14 @@ class Parser(object):
                 self.reverseConnections[node2] = node1
 
     def parseNodes(self, content, constCorrection, weights, domains):
-        """parses the node lines of a circuit file with the given name, creates and stores the nodes in the nodes dictionary"""
+        """
+        parses the node lines of a circuit file with the given name, creates and stores the nodes in the nodes dictionary
+        
+        :param content: the contents of the file as read by :func:`~Parser.parseCircuit`
+        :param constCorrection: the list storing the constant nodes for possible adjustment by :func:`~Parser.adjustConstNodes`
+        :param weights: the weights dictionary as returned by the :func:`~Parser.parseWeights`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
+        """
         for line in content:
             matchLink = self.linkPattern.match(line)
             matchNum = self.nodeNumPattern.match(line)
@@ -74,17 +97,31 @@ class Parser(object):
                     data = data[0:data.find("(")]
 
                 if data == 'C':
-                    self.parseConst(line, domains, weights, constCorrection, node)
+                    self.parseConst(line, constCorrection, weights, domains, node)
                 else:
-                    if data == 'A' or data == 'E':
+                    if data == 'A':
                         objects, var = self.parseQuantifier(line, domains)
+                        newNode = ForAllNode(var, objects)
+                    elif  data == 'E':
+                        objects, var = self.parseQuantifier(line, domains)
+                        newNode = ExistsNode(var, objects)
+                    elif data == 'and':
+                        newNode = AndNode()
+                    elif data == 'or':
+                        newNode = OrNode()
                     else:
-                        objects, var = None, None
-                    newNode = CreateNewNode(data, var, objects, weights)
+                        newNode = LeafNode(data, weights)
                     self.nodes.update({node: newNode})
 
     def parseQuantifier(self, line, domains):
-        """parses a line contianing a universal or existential quantifier"""
+        """
+        parses a line contianing a universal or existential quantifier
+        
+        :param line: the contents of the line containing the quantifier as read by :func:`~Parser.parseCircuit`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
+
+        :returns: objects contained in the domain and the corresponding variable name
+        """
         var = line[line.find("{") + 1:line.find("}")]
         without = []
         domainFull = line[line.find("}") + 2:-2]
@@ -101,11 +138,20 @@ class Parser(object):
             domainSet = [domainSet]
 
         objects = {}
-        objects.update({var: (domains[domainSet[0]], domainType, without, domainFull)})
+        objects.update({var: (domains[domainSet[0]], domainType, without)})
         return objects, var
 
-    def parseConst(self, line, domains, weights, constCorrection, node):
-        """parses a line contianing a constant node"""
+    def parseConst(self, line, constCorrection, weights, domains, node):
+        """
+        parses a line contianing a constant node
+        
+        :param line: the contents of the line containing the quantifier as read by :func:`~Parser.parseCircuit`
+        :param constCorrection: the list storing the constant nodes for possible adjustment by :func:`~Parser.adjustConstNodes`
+        :param weights: the weights dictionary as returned by the :func:`~Parser.parseWeights`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
+        :param node: the constant node name
+        """
+
         varSet = line[line.find("{") + 1:line.find("}")].split(",")
         line = line[line.find("}") + 2:]
         doms = line[0:line.find("}")].split(",")
@@ -175,7 +221,13 @@ class Parser(object):
             constCorrection.append([doms[0], node])
     
     def adjustConstNodes(self, constCorrection):
-        """adjusts the circuit by moving the constant nodes down when they are above a univesal quantifier over the same domain"""
+        """
+        adjusts the circuit by moving the constant nodes down when they are above a univesal quantifier over the same domain,
+        adjusts the moved nodes to not integrate on themselves during wfomi computation
+                
+        :param constCorrection: the list storing the constant nodes for possible adjustment by :func:`~Parser.adjustConstNodes`
+
+        """
         for constDom, constNode in constCorrection:
             nextForAllNode = self.nextMatchingForAll(self.reverseConnections[constNode], constDom)
             if nextForAllNode is not None and not self.ancestorIsForAll(nextForAllNode):
@@ -211,7 +263,13 @@ class Parser(object):
                 self.nodes[constNode].shouldIntegrate = False
  
     def parseWeights(self, name):
-        """parses the weight file"""
+        """
+        parses the weight file
+
+        :param name: the path to the weight file to be parsed
+
+        :retuns: dictionaries containing the weights and domains of all the predicates
+        """
         print("parsing file:", name)
         with open(name) as f:
             content = f.readlines()
@@ -262,7 +320,9 @@ class Parser(object):
         return weights, domains
 
     def connectNodes(self):
-        """connects the nodes in self.nodes dictionary based on data in self.connections"""
+        """
+        connects the nodes in self.nodes dictionary based on data in self.connections
+        """
         for node in self.connections.keys():
             if type(self.connections[node]) is tuple:
                 self.nodes[node].left = self.nodes[self.connections[node][0]]
@@ -271,7 +331,13 @@ class Parser(object):
                 self.nodes[node].left = self.nodes[self.connections[node]]
 
     def ancestorIsForAll(self, node):
-        """a helper function used in adjustConstNodes to check if the node has a universal quantifier as an ancestor"""
+        """
+        a helper function used in adjustConstNodes to check if the node has a universal quantifier as an ancestor
+
+        :param node: the name of the node for which we want to check if one of its ancestors is a universal quantifier
+
+        :returns: None if there are no universal ancestors or the first universal ancestor node object
+        """
         if node not in self.reverseConnections:
             return None
         if type(self.nodes[self.reverseConnections[node]]) is ForAllNode:
@@ -281,7 +347,14 @@ class Parser(object):
 
 
     def nextMatchingForAll(self, node, domain):
-        """a helper function used in adjustConstNodes to detect the next universal quantifier of a given node with matching domain"""
+        """
+        a helper function used in adjustConstNodes to detect the next universal quantifier of a given node with matching domain
+
+        :param node: the name of the node for which we want to check if one of its ancestors is a universal quantifier
+        :param domain: the domain of the node
+
+        :returns: None if there are no matching universal quantifier or the matchin node name
+        """
         if type(self.nodes[node]) is ForAllNode and self.nodes[node].objects[self.nodes[node].var][3] == domain:
             return node
         elif type(self.nodes[node]) is not ConstNode:
