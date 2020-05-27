@@ -38,7 +38,7 @@ The const[1, 5] indicates the constant multiplier on the weight function and if 
 
 An example of the weights file follows. Additional examples can be found in test_input folder.
 
-.. code-block:: python
+.. code-block:: console
 
    person = {Guy, Nima, Wannes, Jesse, Luc}
    friends: [0.1, 0.9]
@@ -56,7 +56,7 @@ The connections lines are of the form nX -> xY, eg. n0 -> n1 indicating n1 is th
 
 An example of the circuit file follows. Additional examples can be found in test_input folder.
 
-.. code-block:: python
+.. code-block:: console
 
    n23 and
    n0  C{X}{person} friends(X,X) or neg friends(X,X) 
