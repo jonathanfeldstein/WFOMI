@@ -8,7 +8,7 @@ Documentation: pywfomi solver
 Introduction
 ===========
 
-.. include:: README.rst
+.. include:: intro.rst
 
 Input files
 ===========
