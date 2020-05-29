@@ -53,7 +53,7 @@ class ForAllNode(Node):
         :returns: the :class:`.Term` with a cosntant equal to 1, empty bounds and the result of the integration at the universal node 
         raised to the power of its domain size
         """
-        domain, domType, without = self.domData[self.var]
+        domain, domType, without, _ = self.domData[self.var]
         domain = list(set(domain) - set(without))
 
         if domSize is None:
@@ -76,7 +76,7 @@ class ForAllNode(Node):
 
         :returns: the maximum size of the domain at the given node and the set of objects removed from it
         """
-        domain, _, without = self.domData[self.var]
+        domain, _, without, _ = self.domData[self.var]
         return len(list(set(domain) - set(without))), without
 
 class ExistsNode(Node):
@@ -122,7 +122,7 @@ class ExistsNode(Node):
         
         :returns: the maximum size of the domain at the given node and the set of objects removed from it
         """
-        domain, _, without = self.domData[self.var]
+        domain, _, without, _ = self.domData[self.var]
         return len(list(set(domain) - set(without))), without
 
 class OrNode(Node):
@@ -213,7 +213,7 @@ class ConstNode(Node):
         node quantifying over the same domain or otherwise numeric corresponding to universal quantification over its domain
         """
         if domSize is None:
-            domain, _, _ = self.domData[self.nodeName + self.varList[0]]
+            domain, _, _, _ = self.domData[self.nodeName + self.varList[0]]
             domSize = [len(domain), len(domain), len(domain)]
 
         if removed is None:
@@ -222,7 +222,7 @@ class ConstNode(Node):
         exponent = 1
         for var in self.varList:
             key = self.nodeName + var
-            domain, domType, without = self.domData[key]
+            domain, domType, without, _ = self.domData[key]
 
             dec = 0
             for otherVar in self.varList:
@@ -267,7 +267,7 @@ class ConstNode(Node):
         without = None
         for var in self.varList:
             key = self.nodeName + var
-            domain, _, without = self.domData[key]
+            domain, _, without, _ = self.domData[key]
             if len(list(set(domain) - set(without))) > domSize:
                 domSize = len(list(set(domain) - set(without)))
         return domSize, without

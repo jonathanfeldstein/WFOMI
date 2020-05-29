@@ -1,4 +1,4 @@
-person = {Guy, Alice, Bob}
+person = {Guy, Alice}
 single: [1, 1] const[0.1, 0.9]
 tax(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45] const[1]
 neg tax(b)fun -0.001*(b-27)**2+0.3 bounds[10, 35] const[1]

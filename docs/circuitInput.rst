@@ -6,7 +6,7 @@ The contens lines are then followed by the description of the node. This can be 
 
 The connections lines are of the form nX -> xY, eg. n0 -> n1 indicating n1 is the child of n0.
 
-An example of the circuit file follows.
+An example of the circuit file follows. Additional examples can be found in test_input folder.
 
 .. literalinclude:: ../solver/test_input/smokers/theory.txt
    :linenos:

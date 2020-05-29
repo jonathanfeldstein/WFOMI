@@ -138,7 +138,7 @@ class Parser(object):
             domainSet = [domainSet]
 
         objects = {}
-        objects.update({var: (domains[domainSet[0]], domainType, without)})
+        objects.update({var: (domains[domainSet[0]], domainType, without, domainFull)})
         return objects, var
 
     def parseConst(self, line, constCorrection, weights, domains, node):
@@ -184,7 +184,7 @@ class Parser(object):
                 withoutSet.append("")
 
         for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
-            objects.update({node + var: (domains[dom.strip()], domType, without)})
+            objects.update({node + var: (domains[dom.strip()], domType, without, dom)})
 
         line = line[line.find("}") + 2:]
         if line.find("or") != -1 or line.find("and") != -1:
@@ -355,7 +355,7 @@ class Parser(object):
 
         :returns: None if there are no matching universal quantifier or the matchin node name
         """
-        if type(self.nodes[node]) is ForAllNode and self.nodes[node].objects[self.nodes[node].var][3] == domain:
+        if type(self.nodes[node]) is ForAllNode and self.nodes[node].domData[self.nodes[node].var][3] == domain:
             return node
         elif type(self.nodes[node]) is not ConstNode:
             if node in self.connections and type(self.connections[node]) is tuple:
