@@ -8,7 +8,7 @@ Documentation: pywfomi solver
 Introduction
 ===========
 
-.. include:: README.rst
+.. include:: intro.rst
 
 Input files
 ===========
@@ -30,9 +30,9 @@ Code
 ===================
 Here follows the documentation of the python code of the solver.
 			 
-pywfomi
+wfomi
 -----------
-.. automodule:: pywfomi
+.. automodule:: wfomi
    :members:
 		 
 term

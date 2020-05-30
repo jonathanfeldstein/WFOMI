@@ -41,8 +41,8 @@
 </div>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>This is the documentation for the pywfomi solver written in python3.
-Py stands for python, wfomi stands for weighted first orde model integration.
+<p>This is the documentation for the wfomi solver written in python3.
+Wfomi stands for weighted first orde model integration.
 The solver implements a novel algorithm based on the work of Jonathan Feldstein.
 The solver outperforms the wfomc solver - Forclift as well as wmi solver - pywmi in terms of efficiency and expressiveness.</p>
 <p>To run the solver, change directory to the solver folder and call:</p>
@@ -96,7 +96,7 @@ There are two types of lines in the circuit file, one corresponding to the conte
 The lines always begin with the nX eg. n1 where X indicates the unique node number which is used to identify it.</p>
 <p>The contens lines are then followed by the description of the node. This can be a connective ‘and’, ‘or’, a leaf including the given predicate eg. ‘smokes(x)’, a quantifier eg. A{x}{persons} or a constant C{x}{persons}. The quantifier and constant lines are of the form Z{x}{persons}, where Z can be A or E indicating a universal or existentiar quantifiers. The first braces store the variable(s) that is quantified over and the second braces store the domain of the variable. If the node quantifies over more than one variable they are listed seperated by commas and so are the domains like: C{x, y}{persons, animals}. Moreover if the domain of the quantifier is constrained not to include a given object we denote it by E{x}{persons/Alice} where persons normally include Alice. Futhermore the type of the domain can be included, eg. if a given quantifier is a descendant of an existential quantifier it must refer to one of the splits of the original domain induced by the existential. Those splits are reffered to as top and bot and are indicated like: A{x}{persons-bot}</p>
 <p>The connections lines are of the form nX -&gt; xY, eg. n0 -&gt; n1 indicating n1 is the child of n0.</p>
-<p>An example of the circuit file follows.</p>
+<p>An example of the circuit file follows. Additional examples can be found in test_input folder.</p>
 <div class="highlight-console notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -197,19 +197,32 @@ The lines always begin with the nX eg. n1 where X indicates the unique node numb
 <div class="section" id="code">
 <h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
 <p>Here follows the documentation of the python code of the solver.</p>
-<div class="section" id="module-pywfomi">
-<span id="pywfomi"></span><h3>pywfomi<a class="headerlink" href="#module-pywfomi" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-wfomi"></span><dl class="py function">
-<dt id="pywfomi.pywfomi">
-<code class="sig-prename descclassname">pywfomi.</code><code class="sig-name descname">pywfomi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywfomi.pywfomi" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="module-wfomi">
+<span id="wfomi"></span><h3>wfomi<a class="headerlink" href="#module-wfomi" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-0"></span><dl class="py function">
+<dt id="wfomi.wfomi">
+<code class="sig-prename descclassname">wfomi.</code><code class="sig-name descname">wfomi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">partitionFile</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">queryFile</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weightFile</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wfomi.wfomi" title="Permalink to this definition">¶</a></dt>
 <dd><p>the main function of the solver, takes the theory circuit, query circuit and the weight files 
-as arguments from the command line in that order and returns the probability of the query</p>
+as arguments from the command line in that order and returns the probability of the query 
+or as arguments if called as a function from a different module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>partitionFile</strong> – the path to the file contiaining the theory circuit which will be used to compute the partition function</p></li>
+<li><p><strong>queryFile</strong> – the path to the file containing the query circuit which will be used to compute unnormalised probability of the query</p></li>
+<li><p><strong>weightFile</strong> – the path to the weight file containing the weights of the predicates in the theory and query circuits</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the probability of the query. In addition the time to compute is printed along with the partition function and unnormalised query</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-term">
 <span id="term"></span><h3>term<a class="headerlink" href="#module-term" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-0"></span><dl class="py class">
+<span class="target" id="module-1"></span><dl class="py class">
 <dt id="term.Term">
 <em class="property">class </em><code class="sig-prename descclassname">term.</code><code class="sig-name descname">Term</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bounds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">const</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.Term" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Term object represent the smallest computational unit over the circuit representation. The Term is used to store the weight
@@ -314,7 +327,7 @@ as integration. The weights, bounds and constants are all lists and their elemen
 </div>
 <div class="section" id="module-circuit">
 <span id="circuit"></span><h3>circuit<a class="headerlink" href="#module-circuit" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-1"></span><p>each node has a compute class which follows the computation step of the algorithm for the given node
+<span class="target" id="module-2"></span><p>each node has a compute class which follows the computation step of the algorithm for the given node
 the maxDomainSize is used to compute the maximum domain size for the existential node
 .. moduleauthor:: Marcin Korecki</p>
 <dl class="py class">
@@ -613,7 +626,7 @@ left and right children</p>
 </div>
 <div class="section" id="module-parser">
 <span id="parser"></span><h3>parser<a class="headerlink" href="#module-parser" title="Permalink to this headline">¶</a></h3>
-<span class="target" id="module-2"></span><dl class="py class">
+<span class="target" id="module-3"></span><dl class="py class">
 <dt id="parser.Parser">
 <em class="property">class </em><code class="sig-prename descclassname">parser.</code><code class="sig-name descname">Parser</code><a class="headerlink" href="#parser.Parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>the parser for the default circuit and weight files defined by the author. The files descriptions can be found in the docs</p>
@@ -789,7 +802,7 @@ and self.reverseConnections</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#code">Code</a><ul>
-<li><a class="reference internal" href="#module-pywfomi">pywfomi</a></li>
+<li><a class="reference internal" href="#module-wfomi">wfomi</a></li>
 <li><a class="reference internal" href="#module-term">term</a></li>
 <li><a class="reference internal" href="#module-circuit">circuit</a></li>
 <li><a class="reference internal" href="#module-parser">parser</a></li>

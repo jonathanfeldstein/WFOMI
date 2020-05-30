@@ -113,5 +113,4 @@ class Term(object):
         """
         integrated = {wf: wf.integrate(*wf.free_symbols) if hasattr(wf, 'free_symbols') and (len(wf.free_symbols) != 0) else wf for wf in set(self.weights)}
         integral = [symbolicToNumeric(integrated[self.weights[i]], self.bounds[i])*self.const[i] if hasattr(self.weights[i], 'free_symbols') else self.weights[i]*self.const[i] for i in range(len(self.weights))]
-        # integral = [integrateFromDict(self.weights[i], self.bounds[i])*self.const[i] if hasattr(self.wfs[i], 'free_symbols') else self.weights[i]*self.const[i] for i in range(len(self.weights))]
         return Term([1], [{}], [sum(integral)])

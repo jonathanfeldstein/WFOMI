@@ -1,7 +1,7 @@
 .. highlight:: console
 
-This is the documentation for the pywfomi solver written in python3.
-Py stands for python, wfomi stands for weighted first orde model integration.
+This is the documentation for the wfomi solver written in python3.
+Wfomi stands for weighted first orde model integration.
 The solver implements a novel algorithm based on the work of Jonathan Feldstein.
 The solver outperforms the wfomc solver - Forclift as well as wmi solver - pywmi in terms of efficiency and expressiveness. 
 

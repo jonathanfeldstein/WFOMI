@@ -73,7 +73,7 @@
 
 
 \title{wfomi}
-\date{May 27, 2020}
+\date{May 30, 2020}
 \release{0.1}
 \author{korecki}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -92,8 +92,8 @@
 
 \chapter{Introduction}
 \label{\detokenize{index:introduction}}
-This is the documentation for the pywfomi solver written in python3.
-Py stands for python, wfomi stands for weighted first orde model integration.
+This is the documentation for the wfomi solver written in python3.
+Wfomi stands for weighted first orde model integration.
 The solver implements a novel algorithm based on the work of Jonathan Feldstein.
 The solver outperforms the wfomc solver \sphinxhyphen{} Forclift as well as wmi solver \sphinxhyphen{} pywmi in terms of efficiency and expressiveness.
 
@@ -159,7 +159,7 @@ The contens lines are then followed by the description of the node. This can be 
 
 The connections lines are of the form nX \sphinxhyphen{}\textgreater{} xY, eg. n0 \sphinxhyphen{}\textgreater{} n1 indicating n1 is the child of n0.
 
-An example of the circuit file follows.
+An example of the circuit file follows. Additional examples can be found in test\_input folder.
 
 \begin{sphinxVerbatim}[commandchars=\\\{\},numbers=left,firstnumber=1,stepnumber=1]
 \PYG{g+go}{  n23 and}
@@ -217,20 +217,38 @@ An example of the circuit file follows.
 Here follows the documentation of the python code of the solver.
 
 
-\section{pywfomi}
-\label{\detokenize{index:module-pywfomi}}\label{\detokenize{index:pywfomi}}\index{module@\spxentry{module}!pywfomi@\spxentry{pywfomi}}\index{pywfomi@\spxentry{pywfomi}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-wfomi}}\index{module@\spxentry{module}!wfomi@\spxentry{wfomi}}\index{wfomi@\spxentry{wfomi}!module@\spxentry{module}}\index{pywfomi() (in module pywfomi)@\spxentry{pywfomi()}\spxextra{in module pywfomi}}
+\section{wfomi}
+\label{\detokenize{index:module-wfomi}}\label{\detokenize{index:wfomi}}\index{module@\spxentry{module}!wfomi@\spxentry{wfomi}}\index{wfomi@\spxentry{wfomi}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-0}}\index{module@\spxentry{module}!wfomi@\spxentry{wfomi}}\index{wfomi@\spxentry{wfomi}!module@\spxentry{module}}\index{wfomi() (in module wfomi)@\spxentry{wfomi()}\spxextra{in module wfomi}}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{index:pywfomi.pywfomi}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{pywfomi.}}\sphinxbfcode{\sphinxupquote{pywfomi}}}{}{}
+\phantomsection\label{\detokenize{index:wfomi.wfomi}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{wfomi.}}\sphinxbfcode{\sphinxupquote{wfomi}}}{\emph{\DUrole{n}{partitionFile}\DUrole{o}{=}\DUrole{default_value}{None}}, \emph{\DUrole{n}{queryFile}\DUrole{o}{=}\DUrole{default_value}{None}}, \emph{\DUrole{n}{weightFile}\DUrole{o}{=}\DUrole{default_value}{None}}}{}
 the main function of the solver, takes the theory circuit, query circuit and the weight files 
-as arguments from the command line in that order and returns the probability of the query
+as arguments from the command line in that order and returns the probability of the query 
+or as arguments if called as a function from a different module
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{\sphinxupquote{partitionFile}} \textendash{} the path to the file contiaining the theory circuit which will be used to compute the partition function
+
+\item {} 
+\sphinxstyleliteralstrong{\sphinxupquote{queryFile}} \textendash{} the path to the file containing the query circuit which will be used to compute unnormalised probability of the query
+
+\item {} 
+\sphinxstyleliteralstrong{\sphinxupquote{weightFile}} \textendash{} the path to the weight file containing the weights of the predicates in the theory and query circuits
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+the probability of the query. In addition the time to compute is printed along with the partition function and unnormalised query
+
+\end{description}\end{quote}
 
 \end{fulllineitems}
 
 
 
 \section{term}
-\label{\detokenize{index:module-term}}\label{\detokenize{index:term}}\index{module@\spxentry{module}!term@\spxentry{term}}\index{term@\spxentry{term}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-0}}\index{module@\spxentry{module}!term@\spxentry{term}}\index{term@\spxentry{term}!module@\spxentry{module}}\index{Term (class in term)@\spxentry{Term}\spxextra{class in term}}
+\label{\detokenize{index:module-term}}\label{\detokenize{index:term}}\index{module@\spxentry{module}!term@\spxentry{term}}\index{term@\spxentry{term}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-1}}\index{module@\spxentry{module}!term@\spxentry{term}}\index{term@\spxentry{term}!module@\spxentry{module}}\index{Term (class in term)@\spxentry{Term}\spxextra{class in term}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{index:term.Term}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{term.}}\sphinxbfcode{\sphinxupquote{Term}}}{\emph{\DUrole{n}{weights}\DUrole{o}{=}\DUrole{default_value}{None}}, \emph{\DUrole{n}{bounds}\DUrole{o}{=}\DUrole{default_value}{None}}, \emph{\DUrole{n}{const}\DUrole{o}{=}\DUrole{default_value}{None}}}{}
@@ -362,7 +380,7 @@ the numeric value of the integal within the given bounds
 
 
 \section{circuit}
-\label{\detokenize{index:module-circuit}}\label{\detokenize{index:circuit}}\index{module@\spxentry{module}!circuit@\spxentry{circuit}}\index{circuit@\spxentry{circuit}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-1}}\index{module@\spxentry{module}!circuit@\spxentry{circuit}}\index{circuit@\spxentry{circuit}!module@\spxentry{module}}
+\label{\detokenize{index:module-circuit}}\label{\detokenize{index:circuit}}\index{module@\spxentry{module}!circuit@\spxentry{circuit}}\index{circuit@\spxentry{circuit}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-2}}\index{module@\spxentry{module}!circuit@\spxentry{circuit}}\index{circuit@\spxentry{circuit}!module@\spxentry{module}}
 each node has a compute class which follows the computation step of the algorithm for the given node
 the maxDomainSize is used to compute the maximum domain size for the existential node
 .. moduleauthor:: Marcin Korecki
@@ -746,7 +764,7 @@ the maximum size of the domain at the given node and the set of objects removed 
 
 
 \section{parser}
-\label{\detokenize{index:module-parser}}\label{\detokenize{index:parser}}\index{module@\spxentry{module}!parser@\spxentry{parser}}\index{parser@\spxentry{parser}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-2}}\index{module@\spxentry{module}!parser@\spxentry{parser}}\index{parser@\spxentry{parser}!module@\spxentry{module}}\index{Parser (class in parser)@\spxentry{Parser}\spxextra{class in parser}}
+\label{\detokenize{index:module-parser}}\label{\detokenize{index:parser}}\index{module@\spxentry{module}!parser@\spxentry{parser}}\index{parser@\spxentry{parser}!module@\spxentry{module}}\phantomsection\label{\detokenize{index:module-3}}\index{module@\spxentry{module}!parser@\spxentry{parser}}\index{parser@\spxentry{parser}!module@\spxentry{module}}\index{Parser (class in parser)@\spxentry{Parser}\spxextra{class in parser}}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{index:parser.Parser}}\pysigline{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{parser.}}\sphinxbfcode{\sphinxupquote{Parser}}}
@@ -959,17 +977,16 @@ dictionaries containing the weights and domains of all the predicates
 \begin{sphinxtheindex}
 \let\bigletter\sphinxstyleindexlettergroup
 \bigletter{c}
-\item\relax\sphinxstyleindexentry{circuit}\sphinxstyleindexpageref{index:\detokenize{module-1}}
+\item\relax\sphinxstyleindexentry{circuit}\sphinxstyleindexpageref{index:\detokenize{module-2}}
 \indexspace
 \bigletter{p}
-\item\relax\sphinxstyleindexentry{parser}\sphinxstyleindexpageref{index:\detokenize{module-2}}
-\item\relax\sphinxstyleindexentry{pywfomi}\sphinxstyleindexpageref{index:\detokenize{module-pywfomi}}
+\item\relax\sphinxstyleindexentry{parser}\sphinxstyleindexpageref{index:\detokenize{module-3}}
 \indexspace
 \bigletter{t}
-\item\relax\sphinxstyleindexentry{term}\sphinxstyleindexpageref{index:\detokenize{module-0}}
+\item\relax\sphinxstyleindexentry{term}\sphinxstyleindexpageref{index:\detokenize{module-1}}
 \indexspace
 \bigletter{w}
-\item\relax\sphinxstyleindexentry{wfomi}\sphinxstyleindexpageref{index:\detokenize{module-wfomi}}
+\item\relax\sphinxstyleindexentry{wfomi}\sphinxstyleindexpageref{index:\detokenize{module-0}}
 \end{sphinxtheindex}
 
 \renewcommand{\indexname}{Index}
