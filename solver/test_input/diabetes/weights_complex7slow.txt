@@ -1,4 +1,4 @@
-person = {Alice}
+person = {Alice, Bob, Charlie, Dave, Eve, Foxtrott, Google}
 f_1: [10, 1]
 BMI(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45]
 neg BMI(b)fun -0.001*(b-27)**2+0.3 bounds[10, 35]

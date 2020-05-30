@@ -1,0 +1,6 @@
+person = {Alice, Bob, Charlie, Dave, Eve, Foxtrott, Google, Hans, Ike, Jake, Alice0, Bob0, Charlie0, Dave0, Eve0, Foxtrott0, Google0, Hans0, Ike0, Jake0, Alice1, Bob1, Charlie1, Dave1, Eve1, Foxtrott1, Google1, Hans1, Ike1, Jake1, Alice2, Bob2, Charlie2, Dave2, Eve2, Foxtrott2, Google2, Hans2, Ike2, Jake2, Alice3, Bob3, Charlie3, Dave3, Eve3, Foxtrott3, Google3, Hans3, Ike3, Jake3, Alice4, Bob4, Charlie4, Dave4, Eve4, Foxtrott4, Google4, Hans4, Ike4, Jake4, Alice5, Bob5, Charlie5, Dave5, Eve5, Foxtrott5, Google5, Hans5, Ike5, Jake5, Alice6, Bob6, Charlie6, Dave6, Eve6, Foxtrott6, Google6, Hans6, Ike6, Jake6, Alice7, Bob7, Charlie7, Dave7, Eve7, Foxtrott7, Google7, Hans7, Ike7, Jake7, Alice8, Bob8, Charlie8, Dave8, Eve8, Foxtrott8, Google8, Hans8, Ike8, Jake8}
+f_1: [1, 1] const[10, 1]
+BMI(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45] const[1]
+neg BMI(b)fun -0.001*(b-27)**2+0.3 bounds[10, 35] const[1]
+diabetes(b)fun (b/10) - 1
+neg diabetes(b)fun 8 - (b/10)
