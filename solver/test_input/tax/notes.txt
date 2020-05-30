@@ -1,4 +1,4 @@
-person = {Guy, Alice, Bob}
+person = {Guy, Alice}
 single(person) 0.1 0.9
 tax(person) 1 1
 income(person) 0.2 0.8
