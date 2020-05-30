@@ -1,0 +1,2 @@
+The solver requires two kinds of input files.
+The two files representing the circuits, the theory circuit and the query circuit and the one file representing the weights of the predicates occuring in the two cicuits. In this section we present the syntax of these files. The default parser included in the solver works with the here explained file formats, however it should be easy to extend or introduce new parsers for different file formats. 

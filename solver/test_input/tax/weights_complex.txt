@@ -1,0 +1,8 @@
+person = {Guy, Alice}
+single: [1, 1] const[0.1, 0.9]
+tax(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45] const[1]
+neg tax(b)fun -0.001*(b-27)**2+0.3 bounds[10, 35] const[1]
+income: [1, 1] const[0.2, 0.8]
+commonincome: [1, 1]
+f_1: [1, 1] const[7.38905609893065, 1]
+f_2: [1, 1] const[7.38905609893065, 1]
