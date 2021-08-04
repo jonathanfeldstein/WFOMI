@@ -1,0 +1,6 @@
+person = {Alice}
+f_1: [0.001, 0.0001]
+BMI(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45]
+neg BMI(b)fun -0.001*(b-27)**2+0.3 bounds[10, 35]
+diabetes(b)fun (b/10) - 1
+neg diabetes(b)fun 8 - (b/10)

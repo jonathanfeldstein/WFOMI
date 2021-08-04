@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>&lt;no title&gt; &#8212; wfomi 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wfomi 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>The circuit files contain the theory and query circuits.
+There are two types of lines in the circuit file, one corresponding to the contents of the given node and the other indicating the connections between nodes. These lines can be intermixed but for readibility it is customary to first write the contents lines and then the connections lines.
+The lines always begin with the nX eg. n1 where X indicates the unique node number which is used to identify it.</p>
+<p>The contens lines are then followed by the description of the node. This can be a connective ‘and’, ‘or’, a leaf including the given predicate eg. ‘smokes(x)’, a quantifier eg. A{x}{persons} or a constant C{x}{persons}. The quantifier and constant lines are of the form Z{x}{persons}, where Z can be A or E indicating a universal or existentiar quantifiers. The first braces store the variable(s) that is quantified over and the second braces store the domain of the variable. If the node quantifies over more than one variable they are listed seperated by commas and so are the domains like: C{x, y}{persons, animals}. Moreover if the domain of the quantifier is constrained not to include a given object we denote it by E{x}{persons/Alice} where persons normally include Alice. Futhermore the type of the domain can be included, eg. if a given quantifier is a descendant of an existential quantifier it must refer to one of the splits of the original domain induced by the existential. Those splits are reffered to as top and bot and are indicated like: A{x}{persons-bot}</p>
+<p>The connections lines are of the form nX -&gt; xY, eg. n0 -&gt; n1 indicating n1 is the child of n0.</p>
+<p>An example of the circuit file follows. Additional examples can be found in test_input folder.</p>
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre></div></td><td class="code"><div class="highlight"><pre><span></span>  <span class="n">n23</span> <span class="ow">and</span>
+  <span class="n">n0</span>  <span class="n">C</span><span class="p">{</span><span class="n">X</span><span class="p">}{</span><span class="n">person</span><span class="p">}</span> <span class="n">friends</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">X</span><span class="p">)</span> <span class="ow">or</span> <span class="n">neg</span> <span class="n">friends</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">X</span><span class="p">)</span> 
+  <span class="n">n22</span> <span class="n">E</span><span class="p">{</span><span class="n">x</span><span class="p">}{</span><span class="n">person</span><span class="p">}</span>
+  <span class="n">n21</span> <span class="ow">and</span>
+  <span class="n">n1</span>  <span class="n">C</span><span class="p">{</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">}{</span><span class="n">person</span><span class="o">-</span><span class="n">bot</span><span class="o">/</span><span class="n">Y</span><span class="p">,</span> <span class="n">person</span><span class="o">-</span><span class="n">bot</span><span class="p">}</span> <span class="n">friends</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span> <span class="ow">or</span> <span class="n">neg</span> <span class="n">friends</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span> 
+  <span class="n">n20</span> <span class="ow">and</span>
+  <span class="n">n2</span>  <span class="n">C</span><span class="p">{</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">}{</span><span class="n">person</span><span class="o">/</span><span class="n">Y</span><span class="p">,</span> <span class="n">person</span><span class="o">-</span><span class="n">top</span><span class="p">}</span> <span class="n">friends</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span> <span class="ow">or</span> <span class="n">neg</span> <span class="n">friends</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span> 
+  <span class="n">n19</span> <span class="ow">and</span>
+  <span class="n">n3</span>  <span class="n">C</span><span class="p">{</span><span class="n">X</span><span class="p">}{</span><span class="n">person</span><span class="o">-</span><span class="n">top</span><span class="p">}</span> <span class="n">smokes</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> 
+  <span class="n">n18</span> <span class="ow">and</span>
+  <span class="n">n4</span>  <span class="n">C</span><span class="p">{</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">}{</span><span class="n">person</span><span class="p">,</span> <span class="n">person</span><span class="o">-</span><span class="n">top</span><span class="p">}</span> <span class="n">f_1</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span> 
+  <span class="n">n17</span> <span class="ow">and</span>
+  <span class="n">n5</span>  <span class="n">C</span><span class="p">{</span><span class="n">X</span><span class="p">}{</span><span class="n">person</span><span class="o">-</span><span class="n">bot</span><span class="p">}</span> <span class="n">neg</span> <span class="n">smokes</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> 
+  <span class="n">n16</span> <span class="ow">and</span>
+  <span class="n">n6</span>  <span class="n">C</span><span class="p">{</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">}{</span><span class="n">person</span><span class="o">-</span><span class="n">bot</span><span class="p">,</span> <span class="n">person</span><span class="o">-</span><span class="n">bot</span><span class="p">}</span> <span class="n">f_1</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">)</span> 
+  <span class="n">n15</span> <span class="n">A</span><span class="p">{</span><span class="n">x</span><span class="p">}{</span><span class="n">person</span><span class="o">-</span><span class="n">top</span><span class="p">}</span>
+  <span class="n">n14</span> <span class="n">A</span><span class="p">{</span><span class="n">y</span><span class="p">}{</span><span class="n">person</span><span class="o">-</span><span class="n">bot</span><span class="p">}</span>
+  <span class="n">n13</span> <span class="ow">or</span>
+  <span class="n">n9</span> <span class="ow">and</span>
+  <span class="n">n7</span>  <span class="n">f_1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+  <span class="n">n8</span>  <span class="n">neg</span> <span class="n">friends</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+  <span class="n">n12</span> <span class="ow">and</span>
+  <span class="n">n10</span>  <span class="n">neg</span> <span class="n">f_1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+  <span class="n">n11</span>  <span class="n">friends</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+  <span class="n">n23</span> <span class="o">-&gt;</span> <span class="n">n0</span><span class="p">;</span>
+  <span class="n">n23</span> <span class="o">-&gt;</span> <span class="n">n22</span><span class="p">;</span>
+  <span class="n">n22</span> <span class="o">-&gt;</span> <span class="n">n21</span><span class="p">;</span>
+  <span class="n">n21</span> <span class="o">-&gt;</span> <span class="n">n1</span><span class="p">;</span>
+  <span class="n">n21</span> <span class="o">-&gt;</span> <span class="n">n20</span><span class="p">;</span>
+  <span class="n">n20</span> <span class="o">-&gt;</span> <span class="n">n2</span><span class="p">;</span>
+  <span class="n">n20</span> <span class="o">-&gt;</span> <span class="n">n19</span><span class="p">;</span>
+  <span class="n">n19</span> <span class="o">-&gt;</span> <span class="n">n3</span><span class="p">;</span>
+  <span class="n">n19</span> <span class="o">-&gt;</span> <span class="n">n18</span><span class="p">;</span>
+  <span class="n">n18</span> <span class="o">-&gt;</span> <span class="n">n4</span><span class="p">;</span>
+  <span class="n">n18</span> <span class="o">-&gt;</span> <span class="n">n17</span><span class="p">;</span>
+  <span class="n">n17</span> <span class="o">-&gt;</span> <span class="n">n5</span><span class="p">;</span>
+  <span class="n">n17</span> <span class="o">-&gt;</span> <span class="n">n16</span><span class="p">;</span>
+  <span class="n">n16</span> <span class="o">-&gt;</span> <span class="n">n6</span><span class="p">;</span>
+  <span class="n">n16</span> <span class="o">-&gt;</span> <span class="n">n15</span><span class="p">;</span>
+  <span class="n">n15</span> <span class="o">-&gt;</span> <span class="n">n14</span><span class="p">;</span>
+  <span class="n">n14</span> <span class="o">-&gt;</span> <span class="n">n13</span><span class="p">;</span>
+  <span class="n">n13</span> <span class="o">-&gt;</span> <span class="n">n9</span><span class="p">;</span>
+  <span class="n">n13</span> <span class="o">-&gt;</span> <span class="n">n12</span><span class="p">;</span>
+  <span class="n">n9</span> <span class="o">-&gt;</span> <span class="n">n7</span><span class="p">;</span>
+  <span class="n">n9</span> <span class="o">-&gt;</span> <span class="n">n8</span><span class="p">;</span>
+  <span class="n">n12</span> <span class="o">-&gt;</span> <span class="n">n10</span><span class="p">;</span>
+  <span class="n">n12</span> <span class="o">-&gt;</span> <span class="n">n11</span><span class="p">;</span>
+</pre></div>
+</td></tr></table></div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/circuitInput.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wfomi 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, korecki.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

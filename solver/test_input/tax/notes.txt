@@ -1,0 +1,14 @@
+person = {Guy, Alice}
+single(person) 0.1 0.9
+tax(person) 1 1
+income(person) 0.2 0.8
+commonincome(person, person) 1 1
+2 single(x) => ((income(x) ^ tax(x)) v (!income(x) ^ !tax(x)))
+2 !single(x) => ((commonincome(x,y) ^ tax(x) ^ tax(y)) v (!commonincome(x,y) ^ !tax(x) ^ !tax(y)))
+
+
+
+Z(query) = exp(25.524421375338743) = 1.2165090862704803E11
+P(tax(Guy)) = exp(-1.0545519166254422) = 0.3483484815040551
+Inference took 665 ms
+Elapsed time: 667625139ns

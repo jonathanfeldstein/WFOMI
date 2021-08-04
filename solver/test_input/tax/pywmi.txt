@@ -1,0 +1,40 @@
+single s0, s1
+tax t0, t1
+income i0, i1
+commonincome c00, c01, c10, c11
+f_1 fa0, fa1
+f_2 fb00, fb01, fb10, fb11
+
+
+Exists
+(c | ~c) & (c | ~c) & t & ~t & 
+(Forall ((c | ~c) & s & fb & fb & ((fa & i) | (~fa & ~i))) |
+	(i | ~i) & ~s & fa & ~fb &
+	Forall (fb & c) | (~fb & ~c))
+&
+(Forall ((c | ~c) & s & fb & fb & ((fa & ~i) | (~fa & i)) | ((i | ~i) & ~s & fa & ~fb &
+         Forall ((fb & ~c) | (~fb & c)))
+)
+
+
+top={0}, bot={1}
+(c01 | ~c01) & (c10 | ~c10) & t0 & ~t1 & ((c00 | ~c00) & s0 & fb01 & fb00 & ((fa0 & i0) | (~fa0 & ~i0)) | (i0 | ~i0) & ~s0 & fa0 & ~fb01 & (fb00 & c00)) | (~fb00 & ~c00) &
+((c11 | ~c11) & s1 & fb11 & fb10 & ((fa1 & ~i1) | (~fa1 & i1)) | ((i1 | ~i1) & ~s1 & fa1 & ~fb10 & ((fb11 & ~c11) | (~fb11 & c11)))
+
+top={1}, bot={0}
+(c10 | ~c10) & (c01 | ~c01) & t1 & ~t0 & ((c11 | ~c11) & s1 & fb10 & fb11 & ((fa1 & i1) | (~fa1 & ~i1)) | (i1 | ~i1) & ~s1 & fa1 & ~fb10 & (fb11 & c11)) | (~fb11 & ~c11) &
+((c00 | ~c00) & s0 & fb00 & fb01 & ((fa0 & ~i0) | (~fa0 & i0)) | ((i0 | ~i0) & ~s0 & fa0 & ~fb01 & ((fb00 & ~c00) | (~fb00 & c00)))
+
+
+single s0, s1
+tax t0, t1
+income i0, i1
+commonincome c00, c01, c10, c11
+f_1 fa0, fa1
+f_2 fb00, fb01, fb10, fb11
+
+(c01 | ~c01) & (c10 | ~c10) & t0 & ~t1 & ((c00 | ~c00) & s0 & fb01 & fb00 & ((fa0 & i0) | (~fa0 & ~i0)) | (i0 | ~i0) & ~s0 & fa0 & ~fb01 & (fb00 & c00)) | (~fb00 & ~c00) &
+((c11 | ~c11) & s1 & fb11 & fb10 & ((fa1 & ~i1) | (~fa1 & i1)) | ((i1 | ~i1) & ~s1 & fa1 & ~fb10 & ((fb11 & ~c11) | (~fb11 & c11))) | (c10 | ~c10) & (c01 | ~c01) & t1 & ~t0 & ((c11 | ~c11) & s1 & fb10 & fb11 & ((fa1 & i1) | (~fa1 & ~i1)) | (i1 | ~i1) & ~s1 & fa1 & ~fb10 & (fb11 & c11)) | (~fb11 & ~c11) & ((c00 | ~c00) & s0 & fb00 & fb01 & ((fa0 & ~i0) | (~fa0 & i0)) | ((i0 | ~i0) & ~s0 & fa0 & ~fb01 & ((fb00 & ~c00) | (~fb00 & c00)))
+
+
+

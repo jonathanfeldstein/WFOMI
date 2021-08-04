@@ -1,4 +1,4 @@
 person = {Guy, Nima, Wannes, Jesse, Luc}
-friends(x,y): [1, 1]
-smokes(x): [1, 1]
-f_1(x,y): [7.38905609893065, 1]
+friends: [0.1, 0.9]
+smokes: [0.2, 0.8]
+f_1: [7.38905609893065, 1]

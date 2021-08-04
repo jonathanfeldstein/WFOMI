@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>&lt;no title&gt; &#8212; wfomi 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wfomi 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>The weights file contains the weights corresponding to the predicates included in the circuit files.
+In the weights file there can be 3 types of lines:
+| the domain line eg. ‘person = {Alice}’
+| the simple weight line eg. ‘pre: [1, 1] const[1, 10]’, meaning the predicate pre is assigned weight 1*1 and its negation is assigned weight 1*10
+| the complex weight line eg. ‘bmi(x)fun x**2 + 10 bounds[5, 10] const[1, 10]’
+Note that for complex weights the negation weight has to be specified seperately eg. ‘neg bmi(x)fun x**2 + 10 bounds[10, 20]’.
+The name of the arguments of the weight functions must correspond to the argument names used in the circuit description.
+The const[1, 5] indicates the constant multiplier on the weight function and if omitted defaults to 1. This is used for computational speed up.</p>
+<p>An example of the weights file follows. Additional examples can be found in test_input folder.</p>
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">person</span> <span class="o">=</span> <span class="p">{</span><span class="n">Guy</span><span class="p">,</span> <span class="n">Nima</span><span class="p">,</span> <span class="n">Wannes</span><span class="p">,</span> <span class="n">Jesse</span><span class="p">,</span> <span class="n">Luc</span><span class="p">}</span>
+<span class="n">friends</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>
+<span class="n">smokes</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="n">fun</span> <span class="o">-</span><span class="mf">0.001</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="mi">27</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mf">0.3</span>  <span class="n">bounds</span><span class="p">[</span><span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">]</span> 
+<span class="n">neg</span> <span class="n">smokes</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="n">fun</span> <span class="o">-</span><span class="mf">0.001</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="mi">27</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="mf">0.3</span>  <span class="n">bounds</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">35</span><span class="p">]</span> 
+<span class="n">f_1</span><span class="p">:</span> <span class="p">[</span><span class="mf">7.38905609893065</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</td></tr></table></div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/weightInput.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wfomi 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, korecki.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

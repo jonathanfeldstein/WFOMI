@@ -1,0 +1,4 @@
+person = {Alice}
+f_1: [10, 1]
+BMI: [0.2, 0.8]
+diabetes: [10, 1]

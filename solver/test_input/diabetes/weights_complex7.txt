@@ -1,0 +1,6 @@
+person = {Alice, Bob, Charlie, Dave, Eve, Foxtrott, Google}
+f_1: [1, 1] const[10, 1]
+BMI(b)fun -0.001*(b-27)**2+0.3 bounds[35, 45] const[1]
+neg BMI(b)fun -0.001*(b-27)**2+0.3 bounds[10, 35] const[1]
+diabetes(b)fun (b/10) - 1
+neg diabetes(b)fun 8 - (b/10)

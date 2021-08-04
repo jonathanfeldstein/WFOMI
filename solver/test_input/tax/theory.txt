@@ -1,0 +1,159 @@
+  n78 E{x}{person}
+  n77 and
+  n0  C{X,Y}{person-top, person-bot} commonincome(X,Y) or neg commonincome(X,Y)
+  n76 and
+  n1  C{X,Y}{person-bot, person-top} commonincome(X,Y) or neg commonincome(X,Y)
+  n75 and
+  n2  C{X}{person-top} tax(X)
+  n74 and
+  n3  C{X}{person-bot} neg tax(X)
+  n73 and
+  n38 A{x}{person-top}
+  n37 or
+  n18 and
+  n4  C{X}{person-top} commonincome(x,X) or neg commonincome(x,X)
+  n17 and
+  n5  single(x)
+  n16 and
+  n6  C{X}{person-top} f_2(x,X)
+  n15 and
+  n7  C{X}{person-bot} f_2(x,X)
+  n14 or
+  n10 and
+  n8  f_1(x)
+  n9  income(x)
+  n13 and
+  n11 neg f_1(x)
+  n12 neg income(x)
+  n36 and
+  n19 or
+  n1911 income(x) 
+  n1900 neg income(x) 
+  n19 -> n1911
+  n19 -> n1900
+  n35 and
+  n20 neg single(x)
+  n34 and
+  n21 f_1(x)
+  n33 and
+  n22 C{X}{person-bot} neg f_2(x,X)
+  n32 A{y}{person-top}
+  n31 or
+  n27 and
+  n23 f_2(x,y)
+  n24 commonincome(x,y)
+  n30 and
+  n28 neg f_2(x,y)
+  n29 neg commonincome(x,y)
+  n72 A{x}{person-bot}
+  n71 or
+  n53 and
+  n39 C{X}{person-bot} commonincome(x,X) or neg commonincome(x,X)
+  n52 and
+  n40 single(x)
+  n51 and
+  n41 C{X}{person-top} f_2(x,X)
+  n50 and
+  n42 C{X}{person-bot} f_2(x,X)
+  n49 or
+  n45 and
+  n43 f_1(x)
+  n44 neg income(x)
+  n48 and
+  n46 neg f_1(x)
+  n47 income(x)
+  n70 and
+  n54 or
+  n5411 income(x) 
+  n5400 neg income(x) 
+  n54 -> n5411
+  n54 -> n5400
+  n69 and
+  n55 neg single(x)
+  n68 and
+  n56 f_1(x)
+  n67 and
+  n57 C{x}{person-top} neg f_2(x,X)
+  n66 A{y}{person-bot}
+  n65 or
+  n61 and
+  n58 f_2(x,y)
+  n59 neg commonincome(x,y)
+  n64 and
+  n62 neg f_2(x,y)
+  n63 commonincome(x,y)
+  n78 -> n77;
+  n77 -> n0;
+  n77 -> n76;
+  n76 -> n1;
+  n76 -> n75;
+  n75 -> n2;
+  n75 -> n74;
+  n74 -> n3;
+  n74 -> n73;
+  n73 -> n38;
+  n73 -> n72;
+  n38 -> n37;
+  n37 -> n18;
+  n37 -> n36;
+  n18 -> n4;
+  n18 -> n17;
+  n17 -> n5;
+  n17 -> n16;
+  n16 -> n6;
+  n16 -> n15;
+  n15 -> n7;
+  n15 -> n14;
+  n14 -> n10;
+  n14 -> n13;
+  n10 -> n8;
+  n10 -> n9;
+  n13 -> n11;
+  n13 -> n12;
+  n36 -> n19;
+  n36 -> n35;
+  n35 -> n20;
+  n35 -> n34;
+  n34 -> n21;
+  n34 -> n33;
+  n33 -> n22;
+  n33 -> n32;
+  n32 -> n31;
+  n31 -> n27;
+  n31 -> n30;
+  n27 -> n23;
+  n27 -> n24;
+  n30 -> n28;
+  n30 -> n29;
+  n72 -> n71;
+  n71 -> n53;
+  n71 -> n70;
+  n53 -> n39;
+  n53 -> n52;
+  n52 -> n40;
+  n52 -> n51;
+  n51 -> n41;
+  n51 -> n50;
+  n50 -> n42;
+  n50 -> n49;
+  n49 -> n45;
+  n49 -> n48;
+  n45 -> n43;
+  n45 -> n44;
+  n48 -> n46;
+  n48 -> n47;
+  n70 -> n54;
+  n70 -> n69;
+  n69 -> n55;
+  n69 -> n68;
+  n68 -> n56;
+  n68 -> n67;
+  n67 -> n57;
+  n67 -> n66;
+  n66 -> n65;
+  n65 -> n61;
+  n65 -> n64;
+  n61 -> n58;
+  n61 -> n59;
+  n64 -> n62;
+  n64 -> n63;

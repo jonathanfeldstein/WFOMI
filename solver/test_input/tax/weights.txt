@@ -1,0 +1,7 @@
+person = {Guy, Alice}
+single: [1, 1] const[0.1, 0.9]
+tax: [0.5, 1]
+income: [1, 1] const[0.2, 0.8]
+commonincome: [1, 1]
+f_1: [1, 1] const[7.38905609893065, 1]
+f_2: [1, 1] const[7.38905609893065, 1]

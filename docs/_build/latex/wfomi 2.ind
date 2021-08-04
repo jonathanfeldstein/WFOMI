@@ -1,0 +1,107 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter {\sphinxsymbolsname}
+  \item \spxentry{\_\_add\_\_()}\spxextra{term.Term method}, \hyperpage{4}
+  \item \spxentry{\_\_init\_\_()}\spxextra{circuit.ConstNode method}, \hyperpage{5}
+  \item \spxentry{\_\_init\_\_()}\spxextra{circuit.ExistsNode method}, \hyperpage{6}
+  \item \spxentry{\_\_init\_\_()}\spxextra{circuit.ForAllNode method}, \hyperpage{7}
+  \item \spxentry{\_\_init\_\_()}\spxextra{circuit.LeafNode method}, \hyperpage{7}
+  \item \spxentry{\_\_init\_\_()}\spxextra{circuit.Node method}, \hyperpage{8}
+  \item \spxentry{\_\_init\_\_()}\spxextra{parser.Parser method}, \hyperpage{8}
+  \item \spxentry{\_\_init\_\_()}\spxextra{term.Term method}, \hyperpage{4}
+  \item \spxentry{\_\_mul\_\_()}\spxextra{term.Term method}, \hyperpage{4}
+  \item \spxentry{\_\_str\_\_()}\spxextra{term.Term method}, \hyperpage{4}
+
+  \indexspace
+  \bigletter A
+  \item \spxentry{adjustConstNodes()}\spxextra{parser.Parser method}, \hyperpage{8}
+  \item \spxentry{ancestorIsForAll()}\spxextra{parser.Parser method}, \hyperpage{8}
+  \item \spxentry{AndNode}\spxextra{class in circuit}, \hyperpage{5}
+
+  \indexspace
+  \bigletter C
+  \item \spxentry{circuit}
+    \subitem \spxentry{module}, \hyperpage{5}
+  \item \spxentry{compute()}\spxextra{circuit.AndNode method}, \hyperpage{5}
+  \item \spxentry{compute()}\spxextra{circuit.ConstNode method}, \hyperpage{6}
+  \item \spxentry{compute()}\spxextra{circuit.ExistsNode method}, \hyperpage{6}
+  \item \spxentry{compute()}\spxextra{circuit.ForAllNode method}, \hyperpage{7}
+  \item \spxentry{compute()}\spxextra{circuit.LeafNode method}, \hyperpage{7}
+  \item \spxentry{compute()}\spxextra{circuit.OrNode method}, \hyperpage{8}
+  \item \spxentry{connectNodes()}\spxextra{parser.Parser method}, \hyperpage{9}
+  \item \spxentry{ConstNode}\spxextra{class in circuit}, \hyperpage{5}
+
+  \indexspace
+  \bigletter E
+  \item \spxentry{ExistsNode}\spxextra{class in circuit}, \hyperpage{6}
+
+  \indexspace
+  \bigletter F
+  \item \spxentry{ForAllNode}\spxextra{class in circuit}, \hyperpage{7}
+
+  \indexspace
+  \bigletter I
+  \item \spxentry{integrate()}\spxextra{term.Term method}, \hyperpage{5}
+  \item \spxentry{integrateFromDict()}\spxextra{in module term}, \hyperpage{5}
+
+  \indexspace
+  \bigletter L
+  \item \spxentry{LeafNode}\spxextra{class in circuit}, \hyperpage{7}
+
+  \indexspace
+  \bigletter M
+  \item \spxentry{maxDomainSize()}\spxextra{circuit.AndNode method}, \hyperpage{5}
+  \item \spxentry{maxDomainSize()}\spxextra{circuit.ConstNode method}, \hyperpage{6}
+  \item \spxentry{maxDomainSize()}\spxextra{circuit.ExistsNode method}, \hyperpage{6}
+  \item \spxentry{maxDomainSize()}\spxextra{circuit.ForAllNode method}, \hyperpage{7}
+  \item \spxentry{maxDomainSize()}\spxextra{circuit.LeafNode method}, \hyperpage{8}
+  \item \spxentry{maxDomainSize()}\spxextra{circuit.Node method}, \hyperpage{8}
+  \item \spxentry{maxDomainSize()}\spxextra{circuit.OrNode method}, \hyperpage{8}
+  \item \spxentry{module}
+    \subitem \spxentry{circuit}, \hyperpage{5}
+    \subitem \spxentry{parser}, \hyperpage{8}
+    \subitem \spxentry{term}, \hyperpage{4}
+    \subitem \spxentry{wfomi}, \hyperpage{4}
+
+  \indexspace
+  \bigletter N
+  \item \spxentry{nextMatchingForAll()}\spxextra{parser.Parser method}, \hyperpage{9}
+  \item \spxentry{Node}\spxextra{class in circuit}, \hyperpage{8}
+
+  \indexspace
+  \bigletter O
+  \item \spxentry{OrNode}\spxextra{class in circuit}, \hyperpage{8}
+
+  \indexspace
+  \bigletter P
+  \item \spxentry{parseCircuit()}\spxextra{parser.Parser method}, \hyperpage{9}
+  \item \spxentry{parseConnections()}\spxextra{parser.Parser method}, \hyperpage{9}
+  \item \spxentry{parseConst()}\spxextra{parser.Parser method}, \hyperpage{9}
+  \item \spxentry{parseNodes()}\spxextra{parser.Parser method}, \hyperpage{9}
+  \item \spxentry{parseQuantifier()}\spxextra{parser.Parser method}, \hyperpage{10}
+  \item \spxentry{parser}
+    \subitem \spxentry{module}, \hyperpage{8}
+  \item \spxentry{Parser}\spxextra{class in parser}, \hyperpage{8}
+  \item \spxentry{parseWeights()}\spxextra{parser.Parser method}, \hyperpage{10}
+
+  \indexspace
+  \bigletter S
+  \item \spxentry{symbolicToNumeric()}\spxextra{in module term}, \hyperpage{5}
+
+  \indexspace
+  \bigletter T
+  \item \spxentry{term}
+    \subitem \spxentry{module}, \hyperpage{4}
+  \item \spxentry{Term}\spxextra{class in term}, \hyperpage{4}
+
+  \indexspace
+  \bigletter W
+  \item \spxentry{wfomi}
+    \subitem \spxentry{module}, \hyperpage{4}
+  \item \spxentry{wfomi()}\spxextra{in module wfomi}, \hyperpage{4}
+
+\end{sphinxtheindex}

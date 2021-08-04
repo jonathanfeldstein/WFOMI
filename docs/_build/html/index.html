@@ -1,0 +1,853 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Documentation: pywfomi solver &#8212; wfomi 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">wfomi 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="documentation-pywfomi-solver">
+<h1>Documentation: pywfomi solver<a class="headerlink" href="#documentation-pywfomi-solver" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This is the documentation for the wfomi solver written in python3.
+Wfomi stands for weighted first orde model integration.
+The solver implements a novel algorithm based on the work of Jonathan Feldstein.
+The solver outperforms the wfomc solver - Forclift as well as wmi solver - pywmi in terms of efficiency and expressiveness.</p>
+<p>To run the solver, change directory to the solver folder and call:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python3 pywfomi.py [circuit1_filename] [circuit2_filename] [weight_filename]</span>
+</pre></div>
+</div>
+<p>without the brackets and with the intended filenames</p>
+<div class="line-block">
+<div class="line">circuit 1 represents the partition circuit so the one containing the entire theory</div>
+<div class="line">circuit 2 represents the query circuit</div>
+<div class="line">weights represent the simple and complex weights corresponding to predicates appearing the circuits of interest</div>
+</div>
+<p>Example call would look like this:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python3 pywfomi.py test_input/smokers/theory.txt test_input/smokers/query.txt test_input/smokers/weights_simple.txt</span>
+</pre></div>
+</div>
+<p>The docs folder contains this documentation.
+The test_input folder contains examples that can be run to test the software.</p>
+</div>
+<div class="section" id="input-files">
+<h2>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h2>
+<p>The solver requires two kinds of input files.
+The two files representing the circuits, the theory circuit and the query circuit and the one file representing the weights of the predicates occuring in the two cicuits. In this section we present the syntax of these files. The default parser included in the solver works with the here explained file formats, however it should be easy to extend or introduce new parsers for different file formats.</p>
+<div class="section" id="weights-file">
+<h3>Weights file<a class="headerlink" href="#weights-file" title="Permalink to this headline">¶</a></h3>
+<p>The weights file contains the weights corresponding to the predicates included in the circuit files.
+In the weights file there can be 3 types of lines:
+| the domain line eg. ‘person = {Alice}’
+| the simple weight line eg. ‘pre: [1, 1] const[1, 10]’, meaning the predicate pre is assigned weight 1*1 and its negation is assigned weight 1*10
+| the complex weight line eg. ‘bmi(x)fun x**2 + 10 bounds[5, 10] const[1, 10]’
+Note that for complex weights the negation weight has to be specified seperately eg. ‘neg bmi(x)fun x**2 + 10 bounds[10, 20]’.
+The name of the arguments of the weight functions must correspond to the argument names used in the circuit description.
+The const[1, 5] indicates the constant multiplier on the weight function and if omitted defaults to 1. This is used for computational speed up.</p>
+<p>An example of the weights file follows. Additional examples can be found in test_input folder.</p>
+<div class="highlight-console notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="go">person = {Guy, Nima, Wannes, Jesse, Luc}</span>
+<span class="go">friends: [0.1, 0.9]</span>
+<span class="go">smokes(b)fun -0.001*(b-27)**2+0.3  bounds[35, 45] </span>
+<span class="go">neg smokes(b)fun -0.001*(b-27)**2+0.3  bounds[10, 35] </span>
+<span class="go">f_1: [7.38905609893065, 1]</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="cicuit-file">
+<h3>Cicuit file<a class="headerlink" href="#cicuit-file" title="Permalink to this headline">¶</a></h3>
+<p>The circuit files contain the theory and query circuits.
+There are two types of lines in the circuit file, one corresponding to the contents of the given node and the other indicating the connections between nodes. These lines can be intermixed but for readibility it is customary to first write the contents lines and then the connections lines.
+The lines always begin with the nX eg. n1 where X indicates the unique node number which is used to identify it.</p>
+<p>The contens lines are then followed by the description of the node. This can be a connective ‘and’, ‘or’, a leaf including the given predicate eg. ‘smokes(x)’, a quantifier eg. A{x}{persons} or a constant C{x}{persons}. The quantifier and constant lines are of the form Z{x}{persons}, where Z can be A or E indicating a universal or existentiar quantifiers. The first braces store the variable(s) that is quantified over and the second braces store the domain of the variable. If the node quantifies over more than one variable they are listed seperated by commas and so are the domains like: C{x, y}{persons, animals}. Moreover if the domain of the quantifier is constrained not to include a given object we denote it by E{x}{persons/Alice} where persons normally include Alice. Futhermore the type of the domain can be included, eg. if a given quantifier is a descendant of an existential quantifier it must refer to one of the splits of the original domain induced by the existential. Those splits are reffered to as top and bot and are indicated like: A{x}{persons-bot}</p>
+<p>The connections lines are of the form nX -&gt; xY, eg. n0 -&gt; n1 indicating n1 is the child of n0.</p>
+<p>An example of the circuit file follows. Additional examples can be found in test_input folder.</p>
+<div class="highlight-console notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="go">  n23 and</span>
+<span class="go">  n0  C{X}{person} friends(X,X) or neg friends(X,X) </span>
+<span class="go">  n22 E{x}{person}</span>
+<span class="go">  n21 and</span>
+<span class="go">  n1  C{X,Y}{person-bot/Y, person-bot} friends(X,Y) or neg friends(X,Y) </span>
+<span class="go">  n20 and</span>
+<span class="go">  n2  C{X,Y}{person/Y, person-top} friends(X,Y) or neg friends(X,Y) </span>
+<span class="go">  n19 and</span>
+<span class="go">  n3  C{X}{person-top} smokes(X) </span>
+<span class="go">  n18 and</span>
+<span class="go">  n4  C{X,Y}{person, person-top} f_1(X,Y) </span>
+<span class="go">  n17 and</span>
+<span class="go">  n5  C{X}{person-bot} neg smokes(X) </span>
+<span class="go">  n16 and</span>
+<span class="go">  n6  C{X,Y}{person-bot, person-bot} f_1(X,Y) </span>
+<span class="go">  n15 A{x}{person-top}</span>
+<span class="go">  n14 A{y}{person-bot}</span>
+<span class="go">  n13 or</span>
+<span class="go">  n9 and</span>
+<span class="go">  n7  f_1(x,y)</span>
+<span class="go">  n8  neg friends(x,y)</span>
+<span class="go">  n12 and</span>
+<span class="go">  n10  neg f_1(x,y)</span>
+<span class="go">  n11  friends(x,y)</span>
+<span class="go">  n23 -&gt; n0;</span>
+<span class="go">  n23 -&gt; n22;</span>
+<span class="go">  n22 -&gt; n21;</span>
+<span class="go">  n21 -&gt; n1;</span>
+<span class="go">  n21 -&gt; n20;</span>
+<span class="go">  n20 -&gt; n2;</span>
+<span class="go">  n20 -&gt; n19;</span>
+<span class="go">  n19 -&gt; n3;</span>
+<span class="go">  n19 -&gt; n18;</span>
+<span class="go">  n18 -&gt; n4;</span>
+<span class="go">  n18 -&gt; n17;</span>
+<span class="go">  n17 -&gt; n5;</span>
+<span class="go">  n17 -&gt; n16;</span>
+<span class="go">  n16 -&gt; n6;</span>
+<span class="go">  n16 -&gt; n15;</span>
+<span class="go">  n15 -&gt; n14;</span>
+<span class="go">  n14 -&gt; n13;</span>
+<span class="go">  n13 -&gt; n9;</span>
+<span class="go">  n13 -&gt; n12;</span>
+<span class="go">  n9 -&gt; n7;</span>
+<span class="go">  n9 -&gt; n8;</span>
+<span class="go">  n12 -&gt; n10;</span>
+<span class="go">  n12 -&gt; n11;</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+</div>
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<p>Here follows the documentation of the python code of the solver.</p>
+<div class="section" id="module-wfomi">
+<span id="wfomi"></span><h3>wfomi<a class="headerlink" href="#module-wfomi" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-0"></span><dl class="py function">
+<dt id="wfomi.wfomi">
+<code class="sig-prename descclassname">wfomi.</code><code class="sig-name descname">wfomi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">partitionFile</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">queryFile</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weightFile</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wfomi.wfomi" title="Permalink to this definition">¶</a></dt>
+<dd><p>the main function of the solver, takes the theory circuit, query circuit and the weight files 
+as arguments from the command line in that order and returns the probability of the query 
+or as arguments if called as a function from a different module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>partitionFile</strong> – the path to the file contiaining the theory circuit which will be used to compute the partition function</p></li>
+<li><p><strong>queryFile</strong> – the path to the file containing the query circuit which will be used to compute unnormalised probability of the query</p></li>
+<li><p><strong>weightFile</strong> – the path to the weight file containing the weights of the predicates in the theory and query circuits</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the probability of the query. In addition the time to compute is printed along with the partition function and unnormalised query</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-term">
+<span id="term"></span><h3>term<a class="headerlink" href="#module-term" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-1"></span><dl class="py class">
+<dt id="term.Term">
+<em class="property">class </em><code class="sig-prename descclassname">term.</code><code class="sig-name descname">Term</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bounds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">const</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.Term" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Term object represent the smallest computational unit over the circuit representation. The Term is used to store the weight
+functions in symbolic form, the associated bounds and the constant multiplier. The term implements multiplication and addition as well
+as integration. The weights, bounds and constants are all lists and their elements corresponding to elements of a sum.</p>
+<dl class="py method">
+<dt id="term.Term.__add__">
+<code class="sig-name descname">__add__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.Term.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements addition for two terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – the right hand side <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> of addition</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> representing the sum of two terms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="term.Term.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bounds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">const</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.Term.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>initialises the term object with specified weights, bounds and constant multiplier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights</strong> – the weight function</p></li>
+<li><p><strong>bounds</strong> – the bounds of the weight function containing the integrated variable, the lower and upper bounds in that order</p></li>
+<li><p><strong>const</strong> – the constant multiplier</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="term.Term.__mul__">
+<code class="sig-name descname">__mul__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.Term.__mul__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements multiplication for two terms taking care of bounds of functions of the same variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – the right hand side <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> of multiplication</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> representing the multiplied terms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="term.Term.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#term.Term.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>prints the term</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="term.Term.integrate">
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#term.Term.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements efficient integation of a term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> with constant multiplier 1, empty bounds and the numerical value of the integrated constituent terms summed</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="term.integrateFromDict">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">integrateFromDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">bounds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.integrateFromDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for the integration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight</strong> – the weight function</p></li>
+<li><p><strong>bounds</strong> – the bounds of the weight function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retuns</dt>
+<dd class="field-even"><p>the numeric value of the integrated weight function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="term.symbolicToNumeric">
+<code class="sig-prename descclassname">term.</code><code class="sig-name descname">symbolicToNumeric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">bounds</span></em><span class="sig-paren">)</span><a class="headerlink" href="#term.symbolicToNumeric" title="Permalink to this definition">¶</a></dt>
+<dd><p>helper function for the integration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weight</strong> – the weight function</p></li>
+<li><p><strong>bounds</strong> – the bounds of the weight function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retuns</dt>
+<dd class="field-even"><p>the numeric value of the integal within the given bounds</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-circuit">
+<span id="circuit"></span><h3>circuit<a class="headerlink" href="#module-circuit" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-2"></span><p>each node has a compute class which follows the computation step of the algorithm for the given node
+the maxDomainSize is used to compute the maximum domain size for the existential node
+.. moduleauthor:: Marcin Korecki</p>
+<dl class="py class">
+<dt id="circuit.AndNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">AndNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.AndNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.AndNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.AndNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the and node by multiplying two terms at its child nodes. the domSize and removed are passed for 
+potential existential and universals that may be the node’s descendants</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domSize</strong> – the size of the domain of the ancestor quantifiers</p></li>
+<li><p><strong>removed</strong> – the list of objects removed from the domain</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> representing the multiplication of the values at the child nodes of the or node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.AndNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.AndNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node, the maxDomain is the larger domain out of the domains of the
+left and right children</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the maximum size of the domain at the given node and the set of objects removed from it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.ConstNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">ConstNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodeName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">varList</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ConstNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.ConstNode.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodeName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">varList</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ConstNode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>initialises the constant node with the</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – represents the type of a constant node (and, or, leaf)</p></li>
+<li><p><strong>nodeName</strong> – used as a key in a dictionary storing the domains of the nodes</p></li>
+<li><p><strong>varList</strong> – the list of variables the constant node deals with</p></li>
+<li><p><strong>domData</strong> – the dictionary containing the data on the domains corresponding to variables, the data stores 3 values for</p></li>
+</ul>
+</dd>
+</dl>
+<p>each variable, the list of objects in the domain, the domain type (top or bot depending on the existential split) and the without set 
+representing the objects removed from the domain</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ConstNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ConstNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the symbolic value at the constant node depending on its type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domSize</strong> – the size of the domain of the ancestor quantifiers</p></li>
+<li><p><strong>removed</strong> – the list of objects removed from the domain</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> representing the value at the constant node which is eithe symbolic if the node is under a universal</p>
+</dd>
+</dl>
+<p>node quantifying over the same domain or otherwise numeric corresponding to universal quantification over its domain</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ConstNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ConstNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node based on the largest domain of the variables of the constant node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the maximum size of the domain at the given node and the set of objects removed from it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.ExistsNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">ExistsNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ExistsNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.ExistsNode.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ExistsNode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>initialises the existential node with the variables it quantifies over and the data on the corresponding domains]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var</strong> – the name of the variable that the universal quantifies over</p></li>
+<li><p><strong>domData</strong> – the dictionary containing the data on the domains corresponding to variables, the data stores 3 values for</p></li>
+</ul>
+</dd>
+</dl>
+<p>each variable, the list of objects in the domain, the domain type (top or bot depending on the existential split) and the without set 
+representing the objects removed from the domain</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ExistsNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ExistsNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the existential node based on the size of the domain it quantifies over and taking into account the
+objects removed from it</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domSize</strong> – the size of the domain the existential is quantifying over</p></li>
+<li><p><strong>removed</strong> – the list of objects removed from the domain</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> representing the value at the existential node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ExistsNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ExistsNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the maximum size of the domain at the given node and the set of objects removed from it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.ForAllNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">ForAllNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ForAllNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.ForAllNode.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">domData</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ForAllNode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>initialises the universal node with the variables it quantifies over and the data on the domain that </dt><dd><p>the variables correspond to</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var</strong> – the name of the variable that the universal quantifies over</p></li>
+<li><p><strong>domData</strong> – the dictionary containing the data on the domains corresponding to variables, the data stores 3 values for</p></li>
+</ul>
+</dd>
+</dl>
+<p>each variable, the list of objects in the domain, the domain type (top or bot depending on the existential split) and the without set 
+representing the objects removed from the domain</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ForAllNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ForAllNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the numerical value at the universal node based on the size of the domain it quantifies over taking into account the 
+objects that have been removed from it</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domSize</strong> – the size of the domain the universal is quantifying over</p></li>
+<li><p><strong>removed</strong> – the list of objects removed from the domain</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> with a cosntant equal to 1, empty bounds and the result of the integration at the universal node</p>
+</dd>
+</dl>
+<p>raised to the power of its domain size</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.ForAllNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.ForAllNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the maximum size of the domain at the given node and the set of objects removed from it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.LeafNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">LeafNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.LeafNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.LeafNode.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.LeafNode.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>initialises the leaf node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – the key for the dictionary containing the weights</p></li>
+<li><p><strong>weights</strong> – a dictionary containing all the data pertaining to the weights of a predicate. In case of simple weights it is a</p></li>
+</ul>
+</dd>
+</dl>
+<p>single value. In case of complex weights it is the symbolic weight function, the bounds, the arguments of the function and the
+constant multiplier in that order</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.LeafNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.LeafNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the leaves depending on weather the corresponding weight is a float or a function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domSize</strong> – the size of the domain of the ancestor quantifiers</p></li>
+<li><p><strong>removed</strong> – the list of objects removed from the domain</p></li>
+</ul>
+</dd>
+<dt class="field-even">Retuns</dt>
+<dd class="field-even"><p>the term corresponding to the weight function of the predicate at the node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.LeafNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.LeafNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>0 as the domain of the leaf node is empty as it does not quantify over anything</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.Node">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">Node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base class defining a node, all other nodes inherit from it</p>
+<dl class="py method">
+<dt id="circuit.Node.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.Node.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.Node.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.Node.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="circuit.OrNode">
+<em class="property">class </em><code class="sig-prename descclassname">circuit.</code><code class="sig-name descname">OrNode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">right</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.OrNode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="circuit.OrNode.compute">
+<code class="sig-name descname">compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">domSize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">removed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#circuit.OrNode.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>computes the symbolic value at the or node by adding two terms at its child nodes, the setsize and removed are passed for potential 
+existential and universals that may be the node’s descendants</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domSize</strong> – the size of the domain of the ancestor quantifiers</p></li>
+<li><p><strong>removed</strong> – the list of objects removed from the domain</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#term.Term" title="term.Term"><code class="xref py py-class docutils literal notranslate"><span class="pre">Term</span></code></a> representing the sum of the values at the child nodes of the or node</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="circuit.OrNode.maxDomainSize">
+<code class="sig-name descname">maxDomainSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#circuit.OrNode.maxDomainSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>used to compute the maximum domain size for the existential node, the maxDomain is the larger domain out of the domains of the
+left and right children</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the maximum size of the domain at the given node and the set of objects removed from it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-parser">
+<span id="parser"></span><h3>parser<a class="headerlink" href="#module-parser" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-3"></span><dl class="py class">
+<dt id="parser.Parser">
+<em class="property">class </em><code class="sig-prename descclassname">parser.</code><code class="sig-name descname">Parser</code><a class="headerlink" href="#parser.Parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>the parser for the default circuit and weight files defined by the author. The files descriptions can be found in the docs</p>
+<dl class="py method">
+<dt id="parser.Parser.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>the parsers stores 3 regex patterns used to detect lines containing node data, which is split into node number and node data, 
+and link data. It also stores the forward and backward connections as well as the created nodes as dictionaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.adjustConstNodes">
+<code class="sig-name descname">adjustConstNodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">constCorrection</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.adjustConstNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>adjusts the circuit by moving the constant nodes down when they are above a univesal quantifier over the same domain,
+adjusts the moved nodes to not integrate on themselves during wfomi computation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>constCorrection</strong> – the list storing the constant nodes for possible adjustment by <a class="reference internal" href="#parser.Parser.adjustConstNodes" title="parser.Parser.adjustConstNodes"><code class="xref py py-func docutils literal notranslate"><span class="pre">adjustConstNodes()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.ancestorIsForAll">
+<code class="sig-name descname">ancestorIsForAll</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.ancestorIsForAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>a helper function used in adjustConstNodes to check if the node has a universal quantifier as an ancestor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>node</strong> – the name of the node for which we want to check if one of its ancestors is a universal quantifier</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None if there are no universal ancestors or the first universal ancestor node object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.connectNodes">
+<code class="sig-name descname">connectNodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.connectNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>connects the nodes in self.nodes dictionary based on data in self.connections</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.nextMatchingForAll">
+<code class="sig-name descname">nextMatchingForAll</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">domain</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.nextMatchingForAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>a helper function used in adjustConstNodes to detect the next universal quantifier of a given node with matching domain</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node</strong> – the name of the node for which we want to check if one of its ancestors is a universal quantifier</p></li>
+<li><p><strong>domain</strong> – the domain of the node</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None if there are no matching universal quantifier or the matchin node name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseCircuit">
+<code class="sig-name descname">parseCircuit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">domains</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseCircuit" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses a circuit file with the given name and creates nodes using data on the weight functions and domains</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the path to the circuit file to be parsed</p></li>
+<li><p><strong>weights</strong> – the weights dictionary as returned by the <a class="reference internal" href="#parser.Parser.parseWeights" title="parser.Parser.parseWeights"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseWeights()</span></code></a></p></li>
+<li><p><strong>domains</strong> – the domains dictionary as returned by the <a class="reference internal" href="#parser.Parser.parseWeights" title="parser.Parser.parseWeights"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseWeights()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the root node and the dictionary of all nodes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseConnections">
+<code class="sig-name descname">parseConnections</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">content</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseConnections" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses the link lines of a circuit file with the given name and stores the connections between nodes in self.connections, 
+and self.reverseConnections</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>content</strong> – the contents of the file as read by <a class="reference internal" href="#parser.Parser.parseCircuit" title="parser.Parser.parseCircuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseCircuit()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseConst">
+<code class="sig-name descname">parseConst</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em>, <em class="sig-param"><span class="n">constCorrection</span></em>, <em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">domains</span></em>, <em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseConst" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses a line contianing a constant node</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>line</strong> – the contents of the line containing the quantifier as read by <a class="reference internal" href="#parser.Parser.parseCircuit" title="parser.Parser.parseCircuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseCircuit()</span></code></a></p></li>
+<li><p><strong>constCorrection</strong> – the list storing the constant nodes for possible adjustment by <a class="reference internal" href="#parser.Parser.adjustConstNodes" title="parser.Parser.adjustConstNodes"><code class="xref py py-func docutils literal notranslate"><span class="pre">adjustConstNodes()</span></code></a></p></li>
+<li><p><strong>weights</strong> – the weights dictionary as returned by the <a class="reference internal" href="#parser.Parser.parseWeights" title="parser.Parser.parseWeights"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseWeights()</span></code></a></p></li>
+<li><p><strong>domains</strong> – the domains dictionary as returned by the <a class="reference internal" href="#parser.Parser.parseWeights" title="parser.Parser.parseWeights"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseWeights()</span></code></a></p></li>
+<li><p><strong>node</strong> – the constant node name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseNodes">
+<code class="sig-name descname">parseNodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">content</span></em>, <em class="sig-param"><span class="n">constCorrection</span></em>, <em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">domains</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses the node lines of a circuit file with the given name, creates and stores the nodes in the nodes dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>content</strong> – the contents of the file as read by <a class="reference internal" href="#parser.Parser.parseCircuit" title="parser.Parser.parseCircuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseCircuit()</span></code></a></p></li>
+<li><p><strong>constCorrection</strong> – the list storing the constant nodes for possible adjustment by <a class="reference internal" href="#parser.Parser.adjustConstNodes" title="parser.Parser.adjustConstNodes"><code class="xref py py-func docutils literal notranslate"><span class="pre">adjustConstNodes()</span></code></a></p></li>
+<li><p><strong>weights</strong> – the weights dictionary as returned by the <a class="reference internal" href="#parser.Parser.parseWeights" title="parser.Parser.parseWeights"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseWeights()</span></code></a></p></li>
+<li><p><strong>domains</strong> – the domains dictionary as returned by the <a class="reference internal" href="#parser.Parser.parseWeights" title="parser.Parser.parseWeights"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseWeights()</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseQuantifier">
+<code class="sig-name descname">parseQuantifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em>, <em class="sig-param"><span class="n">domains</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseQuantifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses a line contianing a universal or existential quantifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>line</strong> – the contents of the line containing the quantifier as read by <a class="reference internal" href="#parser.Parser.parseCircuit" title="parser.Parser.parseCircuit"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseCircuit()</span></code></a></p></li>
+<li><p><strong>domains</strong> – the domains dictionary as returned by the <a class="reference internal" href="#parser.Parser.parseWeights" title="parser.Parser.parseWeights"><code class="xref py py-func docutils literal notranslate"><span class="pre">parseWeights()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>objects contained in the domain and the corresponding variable name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="parser.Parser.parseWeights">
+<code class="sig-name descname">parseWeights</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.Parser.parseWeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>parses the weight file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – the path to the weight file to be parsed</p>
+</dd>
+<dt class="field-even">Retuns</dt>
+<dd class="field-even"><p>dictionaries containing the weights and domains of all the predicates</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Documentation: pywfomi solver</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#input-files">Input files</a><ul>
+<li><a class="reference internal" href="#weights-file">Weights file</a></li>
+<li><a class="reference internal" href="#cicuit-file">Cicuit file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#code">Code</a><ul>
+<li><a class="reference internal" href="#module-wfomi">wfomi</a></li>
+<li><a class="reference internal" href="#module-term">term</a></li>
+<li><a class="reference internal" href="#module-circuit">circuit</a></li>
+<li><a class="reference internal" href="#module-parser">parser</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">wfomi 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, korecki.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+person = {Guy, Nima, Wannes, Jesse, Luc}
+friends: [0.1, 0.9]
+smokes(b)fun -0.001*(b-27)**2+0.3  bounds[35, 45] 
+neg smokes(b)fun -0.001*(b-27)**2+0.3  bounds[10, 35] 
+f_1: [7.38905609893065, 1]

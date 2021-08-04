@@ -1,141 +1,276 @@
+"""
+.. module:: parser
+   :synopsis: conatins the parser for the default circuit and weight files as defined in the docs
+.. moduleauthor:: Marcin Korecki
+"""
 from circuit import *
 from sympy.parsing.sympy_parser import parse_expr
 import re
 
 
 class Parser(object):
-    def parseCircuit(self, name, weights, domains, algoType):
-        print("parsing file:", name)
-        
-        nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
-        nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE) 
+    """
+    the parser for the default circuit and weight files defined by the author. The files descriptions can be found in the docs
+    """
+    def __init__(self):
+        """
+        the parsers stores 3 regex patterns used to detect lines containing node data, which is split into node number and node data, 
+        and link data. It also stores the forward and backward connections as well as the created nodes as dictionaries
+        """
+        self.nodeNumPattern = re.compile('\s*n\d*', re.IGNORECASE)
+        self.nodeDataPattern = re.compile('\s*\w*\s*\w*\(*\w*,*\w*\)*', re.IGNORECASE)
+        self.linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
 
-        linkPattern = re.compile('\s*n\d*\s->', re.IGNORECASE)
-        
+        self.connections = {}
+        self.reverseConnections = {}
+        self.nodes = {}
+
+    def parseCircuit(self, name, weights, domains):
+        """
+        parses a circuit file with the given name and creates nodes using data on the weight functions and domains
+
+        :param name: the path to the circuit file to be parsed
+        :param weights: the weights dictionary as returned by the :func:`~Parser.parseWeights`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
+
+        :returns: the root node and the dictionary of all nodes
+        """
+        print("parsing file:", name)
+
         with open(name) as f:
             content = f.readlines()
-            
-        connections = []
-        nodes = {}
-        maxDomainSize = 0
 
+        self.connections = {}
+        self.reverseConnections = {}
+        self.nodes = {}
+        constCorrection = []
+
+        self.parseConnections(content)
+        self.parseNodes(content, constCorrection, weights, domains)
+        self.adjustConstNodes(constCorrection)
+          
+        root = self.nodeNumPattern.match(content[0]).group().strip()
+        self.connectNodes()
+
+        return root, self.nodes
+
+    def parseConnections(self, content):
+        """
+        parses the link lines of a circuit file with the given name and stores the connections between nodes in self.connections, 
+        and self.reverseConnections
+
+        :param content: the contents of the file as read by :func:`~Parser.parseCircuit`
+        """
         for line in content:
-            matchLink = linkPattern.match(line)
-            matchNum = nodeNumPattern.match(line)
-            if matchLink != None:
-                matchData = nodeDataPattern.match(line[matchNum.end()+3:]) #+3 for the _->, space+arrow
+            matchLink = self.linkPattern.match(line)
+            matchNum = self.nodeNumPattern.match(line)
+
+            # parse the connection line like 'n0 -> n1'
+            if matchLink is not None:
+                matchData = self.nodeDataPattern.match(line[matchNum.end() + 3:])  # +3 for the _->, space+arrow
                 node1 = matchNum.group().strip()
                 node2 = matchData.group().strip()
-                connections.append((node1, node2))
-            else:
-                matchData = nodeDataPattern.match(line[matchNum.end():])
+                if node1 not in self.connections:
+                    self.connections[node1] = node2
+                else:
+                    self.connections[node1] = (self.connections[node1], node2)
+                self.reverseConnections[node2] = node1
+
+    def parseNodes(self, content, constCorrection, weights, domains):
+        """
+        parses the node lines of a circuit file with the given name, creates and stores the nodes in the nodes dictionary
+        
+        :param content: the contents of the file as read by :func:`~Parser.parseCircuit`
+        :param constCorrection: the list storing the constant nodes for possible adjustment by :func:`~Parser.adjustConstNodes`
+        :param weights: the weights dictionary as returned by the :func:`~Parser.parseWeights`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
+        """
+        for line in content:
+            matchLink = self.linkPattern.match(line)
+            matchNum = self.nodeNumPattern.match(line)
+            
+            if matchLink is None:
+                matchData = self.nodeDataPattern.match(line[matchNum.end():])
                 node = matchNum.group().strip()
                 data = matchData.group().strip()
                 if data.find("(") != -1:
                     data = data[0:data.find("(")]
-                
-                if data == 'A' or data == 'E':
-                    varSet = line[line.find("{")+1:line.find("}")].split(",")
-                    without = []
-                    if len(line[line.find("}")+2:-2].split("/")) > 1:
-                        domainSet, without = line[line.find("}")+2:-2].split("/")
-                        domainSet, without = domainSet.split(","), without.split(",")
-                    else:
-                        domainSet = line[line.find("}")+2:-2].split(",")
 
-                    domainType = ""
-                    if len(domainSet[0].split("-")) > 1:
-                        domainSet, domainType = domainSet[0].split("-")
-                        domainSet = [domainSet]
-
-                    objects = {}
-                    for dom, var in zip(domainSet, varSet):
-                        objects.update({var : (domains[dom], domainType, without)})
-
-                elif data == 'C':
-                    varSet = line[line.find("{")+1:line.find("}")].split(",")
-                    line = line[line.find("}")+2:]
-
-                    doms = line[0:line.find("}")].split(",")
-                    objects = {}
-                    without = []
-                    domainSet = []
-                    domainTypeSet = []
-                    withoutSet = []
-                    for dom in doms:
-                        if len(dom.split("/")) > 1:
-                            domainType, without = dom.split("/")
-                            without = without.split("+")
-                            withoutSet.append(without)
-                            if len(domainType.split("-")) > 1:
-                                d, domainType = domainType.split("-")
-                                domainSet.append(d)
-                            else:
-                                domainSet.append(domainType)
-                            domainTypeSet.append(domainType)
-                        else:
-                            if len(dom.split("-")) > 1:
-                                d, domainType = dom.split("-")
-                                domainSet.append(d)
-                                domainTypeSet.append(domainType)
-                            else:
-                                d = dom.split(",")
-                                domainSet.append(d[0])
-                                domainTypeSet.append("")
-                            withoutSet.append("")
-
-                    for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
-                        objects.update({node + var : (domains[dom.strip()], domType, without)})
-
-                    line = line[line.find("}")+2:]
-                    if line.find("or") != -1 or line.find("and") != -1:
-                        if line.find("or") != -1:
-                            leftData, rightData = line.split("or")
-                            mainNode = ConstantNode("or", node, varSet, objects)
-                        else:
-                            leftData, rightData = line.split("and")
-                            mainNode = ConstantNode("and", node, varSet, objects)
-                        leftData = leftData.lower().strip()
-                        rightData = rightData.lower().strip()
-
-                        leftData = leftData[0:leftData.find('(')]
-                        rightData = rightData[0:rightData.find('(')]
-                        leftNode = LeafNode(leftData, weights, algoType)
-                        rightNode = LeafNode(rightData, weights, algoType)
-                        leftName = node + "a"
-                        rightName = node + "b"
-
-                        nodes.update({leftName : leftNode})
-                        nodes.update({rightName : rightNode})
-                        nodes.update({node : mainNode})
-                        connections.append((node, leftName))
-                        connections.append((node, rightName))
-                    else:
-                        leftData = line.lower().strip()
-                        leftData = leftData[0:leftData.find('(')]
-                        rightData = rightData[0:rightData.find('(')]
-                        leftNode = LeafNode(leftData, weights, algoType)
-                        leftName = node + "a"
-                        mainNode = ConstantNode("leaf", node, varSet, objects)
-                        nodes.update({leftName : leftNode})
-                        nodes.update({node : mainNode})
-                        connections.append((node, leftName))
-                                                
+                if data == 'C':
+                    self.parseConst(line, constCorrection, weights, domains, node)
                 else:
-                    var = None
-                    objects = None
+                    if data == 'A':
+                        objects, var = self.parseQuantifier(line, domains)
+                        newNode = ForAllNode(var, objects)
+                    elif  data == 'E':
+                        objects, var = self.parseQuantifier(line, domains)
+                        newNode = ExistsNode(var, objects)
+                    elif data == 'and':
+                        newNode = AndNode()
+                    elif data == 'or':
+                        newNode = OrNode()
+                    else:
+                        newNode = LeafNode(data, weights)
+                    self.nodes.update({node: newNode})
 
-                if data != "C":
-                    newNode = CreateNewNode(data, var, objects, weights, algoType)
-                    nodes.update({node : newNode})
+    def parseQuantifier(self, line, domains):
+        """
+        parses a line contianing a universal or existential quantifier
+        
+        :param line: the contents of the line containing the quantifier as read by :func:`~Parser.parseCircuit`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
 
-        root = nodeNumPattern.match(content[0]).group().strip()
-        nodes = self.connectNodes(nodes, connections)
-        return root, nodes
+        :returns: objects contained in the domain and the corresponding variable name
+        """
+        var = line[line.find("{") + 1:line.find("}")]
+        without = []
+        domainFull = line[line.find("}") + 2:-2]
+                    
+        if len(domainFull.split("/")) > 1:
+            domainSet, without = domainFull.split("/")
+            domainSet, without = domainSet.split(","), without.split(",")
+        else:
+            domainSet = line[line.find("}") + 2:-2].split(",")
+            
+        domainType = ""
+        if len(domainSet[0].split("-")) > 1:
+            domainSet, domainType = domainSet[0].split("-")
+            domainSet = [domainSet]
 
+        objects = {}
+        objects.update({var: (domains[domainSet[0]], domainType, without, domainFull)})
+        return objects, var
+
+    def parseConst(self, line, constCorrection, weights, domains, node):
+        """
+        parses a line contianing a constant node
+        
+        :param line: the contents of the line containing the quantifier as read by :func:`~Parser.parseCircuit`
+        :param constCorrection: the list storing the constant nodes for possible adjustment by :func:`~Parser.adjustConstNodes`
+        :param weights: the weights dictionary as returned by the :func:`~Parser.parseWeights`
+        :param domains: the domains dictionary as returned by the :func:`~Parser.parseWeights`
+        :param node: the constant node name
+        """
+
+        varSet = line[line.find("{") + 1:line.find("}")].split(",")
+        line = line[line.find("}") + 2:]
+        doms = line[0:line.find("}")].split(",")
+        objects = {}
+        without = []
+        domainSet = []
+        domainTypeSet = []
+        withoutSet = []
+
+        for dom in doms:
+            if len(dom.split("/")) > 1:
+                domainType, without = dom.split("/")
+                without = without.split("+")
+                withoutSet.append(without)
+                if len(domainType.split("-")) > 1:
+                    d, domainType = domainType.split("-")
+                    domainSet.append(d)
+                else:
+                    domainSet.append(domainType)
+                domainTypeSet.append(domainType)
+            else:
+                if len(dom.split("-")) > 1:
+                    d, domainType = dom.split("-")
+                    domainSet.append(d)
+                    domainTypeSet.append(domainType)
+                else:
+                    d = dom.split(",")
+                    domainSet.append(d[0])
+                    domainTypeSet.append("")
+                withoutSet.append("")
+
+        for dom, var, domType, without in zip(domainSet, varSet, domainTypeSet, withoutSet):
+            objects.update({node + var: (domains[dom.strip()], domType, without, dom)})
+
+        line = line[line.find("}") + 2:]
+        if line.find("or") != -1 or line.find("and") != -1:
+            if line.find("or") != -1:
+                leftData, rightData = line.split("or")
+                mainNode = ConstNode("or", node, varSet, objects)
+            else:
+                leftData, rightData = line.split("and")
+                mainNode = ConstNode("and", node, varSet, objects)
+            leftData = leftData.lower().strip()
+            rightData = rightData.lower().strip()
+            leftData = leftData[0:leftData.find('(')]
+            rightData = rightData[0:rightData.find('(')]
+            leftNode = LeafNode(leftData, weights)
+            rightNode = LeafNode(rightData, weights)
+            leftName = node + "a"
+            rightName = node + "b"
+            
+            self.nodes.update({leftName: leftNode})
+            self.nodes.update({rightName: rightNode})
+            self.nodes.update({node: mainNode})
+            self.connections.update({node: (leftName, rightName)})
+        else:
+            leftData = line.lower().strip()
+            leftData = leftData[0:leftData.find('(')]
+            leftNode = LeafNode(leftData, weights)
+            leftName = node + "a"
+            mainNode = ConstNode("leaf", node, varSet, objects)
+            self.nodes.update({leftName: leftNode})
+            self.nodes.update({node: mainNode})
+            self.connections.update({node: leftName})
+
+        if len(varSet) == 1 and len(weights.get(leftData)) > 3:
+            constCorrection.append([doms[0], node])
+    
+    def adjustConstNodes(self, constCorrection):
+        """
+        adjusts the circuit by moving the constant nodes down when they are above a univesal quantifier over the same domain,
+        adjusts the moved nodes to not integrate on themselves during wfomi computation
+                
+        :param constCorrection: the list storing the constant nodes for possible adjustment by :func:`~Parser.adjustConstNodes`
+
+        """
+        for constDom, constNode in constCorrection:
+            nextForAllNode = self.nextMatchingForAll(self.reverseConnections[constNode], constDom)
+            if nextForAllNode is not None and not self.ancestorIsForAll(nextForAllNode):
+                # print(nextForAllNode, constNode, constDom, nodes[nextForAllNode].objects[nodes[nextForAllNode].var][3])
+                forAllChild = self.connections[nextForAllNode]
+                constParent = self.reverseConnections[constNode]
+                constGrandParent = self.reverseConnections[constParent]
+                    
+                parentSibling = None
+                if self.connections[constGrandParent] != constParent:
+                    parentSibling = (set(self.connections[constGrandParent]) - set([constParent])).pop()
+                    constSibling = None
+                if self.connections[constParent] != constNode:
+                    constSibling = (set(self.connections[constParent]) - set([constNode])).pop()
+                        
+                self.connections.update({nextForAllNode: constParent})
+                self.connections.update({constParent: (constNode, forAllChild)})
+                if parentSibling is not None and constSibling is not None:
+                    self.connections.update({constGrandParent: (parentSibling, constSibling)})
+                    self.reverseConnections.update({parentSibling: constGrandParent})
+                    self.reverseConnections.update({constSibling: constGrandParent})
+                elif parentSibling is None:
+                    self.connections.update({constGrandParent: constSibling})
+                    self.reverseConnections.update({constSibling: constGrandParent})
+                elif constSibling is None:
+                    self.connections.update({constGrandParent: parentSibling})
+                    self.reverseConnections.update({parentSibling: constGrandParent})
+                        
+                    self.reverseConnections.update({constParent: nextForAllNode})
+                    self.reverseConnections.update({constNode: constParent})
+                    self.reverseConnections.update({forAllChild: constParent})
+                    
+                self.nodes[constNode].shouldIntegrate = False
+ 
     def parseWeights(self, name):
-        print("parsing file:", name)
+        """
+        parses the weight file
 
+        :param name: the path to the weight file to be parsed
+
+        :retuns: dictionaries containing the weights and domains of all the predicates
+        """
+        print("parsing file:", name)
         with open(name) as f:
             content = f.readlines()
 
@@ -144,44 +279,91 @@ class Parser(object):
         for line in content:
             function = domain = ""
             weight = objects = []
-                
+
+            # if line contains '=' it must be the domain line, parse it accordingly
             if line.find("=") != -1:
-                domain = line[0:line.find("=")-1]
-                objects = line[line.find("{")+1:line.find("}")].split(",")
-                domains.update({domain : objects})
+                domain = line[0:line.find("=") - 1]
+                objects = line[line.find("{") + 1:line.find("}")].split(",")
+                domains.update({domain: objects})
+            # if line contains ':' it must be the simple weight line
             elif line.find(":") != -1:
                 function = line[0:line.find(":")]
-                if function.find('(') != -1:
-                    function = function[0:function.find('(')]
-                weight = line[line.find("[")+1:line.find("]")].split(",")
-                weights.update({function : float(weight[0])})
-                weights.update({"neg " + function : float(weight[1])})
-                for item in domains.items():
-                    for elem in item[1]:
-                        weights.update({function.replace('x', elem) : float(weight[0])})
-                        weights.update({"neg " + function.replace('x', elem) : float(weight[1])})
+                weight = line[line.find("[") + 1:line.find("]")].split(",")
+                const = [1, 1]
+                if line.find('const') != -1:
+                    const = line[line.find('const')+6:-2].split(",")
+                weights.update({function: (float(weight[0]), float(const[0]))})
+                weights.update({"neg " + function: (float(weight[1]), float(const[1]))})
+            # if line contains 'fun' it must be the complex weight line
             elif line.find("fun") != -1:
                 function = line[0:line.find("fun")]
                 if function.find('(') != -1:
                     function = function[0:function.find('(')]
-                weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
+                args = line[line.find('(') + 1:line.find(')')].split(",")
                 if line.find("bounds") != -1:
-                    bounds = tuple(line[line.find("[")+1:line.find("]")].split(","))
-                    weights.update({function : (weight, bounds)})
-                    for item in domains.items():
-                        for elem in item[1]:
-                            weights.update({function.replace('x', elem) : (weight, bounds)})
+                    weight = parse_expr(line[line.find("fun")+4:line.find("bounds")])
+                    bounds = list(line[line.find("[") + 1:line.find("]")].split(","))
+                    it = iter(bounds)
+                    bounds = list(zip(it, it))
+                    const = 1
+                    if line.find('const') != -1:
+                        const = line[line.find('const')+6:-2]
+                    weights.update({function: (weight, bounds, args, const)})
                 else:
-                    weights.update({function : weight})
-                    for item in domains.items():
-                        for elem in item[1]:
-                            weights.update({function.replace('x', elem) : weight})
+                    if line.find('const') != -1:
+                        weight = parse_expr(line[line.find("fun")+4:line.find("const")])
+                        const = line[line.find('const')+6:-2]
+                    else:
+                        weight = parse_expr(line[line.find("fun")+4:])
+                    weights.update({function: (weight, float(const))})
+
         return weights, domains
 
-    def connectNodes(self, nodes, connections):
-        for node1, node2 in connections:
-            if nodes[node1].left == None:
-                nodes[node1].left = nodes[node2]
-            elif nodes[node1].right == None:
-                nodes[node1].right = nodes[node2]
-        return nodes
+    def connectNodes(self):
+        """
+        connects the nodes in self.nodes dictionary based on data in self.connections
+        """
+        for node in self.connections.keys():
+            if type(self.connections[node]) is tuple:
+                self.nodes[node].left = self.nodes[self.connections[node][0]]
+                self.nodes[node].right = self.nodes[self.connections[node][1]]
+            else:
+                self.nodes[node].left = self.nodes[self.connections[node]]
+
+    def ancestorIsForAll(self, node):
+        """
+        a helper function used in adjustConstNodes to check if the node has a universal quantifier as an ancestor
+
+        :param node: the name of the node for which we want to check if one of its ancestors is a universal quantifier
+
+        :returns: None if there are no universal ancestors or the first universal ancestor node object
+        """
+        if node not in self.reverseConnections:
+            return None
+        if type(self.nodes[self.reverseConnections[node]]) is ForAllNode:
+            return self.reverseConnections[node]
+        else:
+            return self.ancestorIsForAll(self.reverseConnections[node])
+
+
+    def nextMatchingForAll(self, node, domain):
+        """
+        a helper function used in adjustConstNodes to detect the next universal quantifier of a given node with matching domain
+
+        :param node: the name of the node for which we want to check if one of its ancestors is a universal quantifier
+        :param domain: the domain of the node
+
+        :returns: None if there are no matching universal quantifier or the matchin node name
+        """
+        if type(self.nodes[node]) is ForAllNode and self.nodes[node].domData[self.nodes[node].var][3] == domain:
+            return node
+        elif type(self.nodes[node]) is not ConstNode:
+            if node in self.connections and type(self.connections[node]) is tuple:
+                result0 = self.nextMatchingForAll(self.connections[node][0], domain)
+                result1 = self.nextMatchingForAll(self.connections[node][1], domain)
+                if result0 is None:
+                    return result1
+                else:
+                    return result0
+            elif node in self.connections:
+                return self.nextMatchingForAll(self.connections[node], domain)
